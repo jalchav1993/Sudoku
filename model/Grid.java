@@ -6,34 +6,40 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.utep.cs.cs4330.sudoku.subregion.factory.*;
+import edu.utep.cs.cs4330.sudoku.subregion.select.*;
 
 
 /**
  * Created by aex on 2/27/18.
  */
 
-public abstract class Grid {
+public abstract class Grid{
     /* inner class variables */
-    private final int size;
-    private final int parentCapacity;
+    //private final Players p1, p2;
 
+    final int size;
+    final int status;
+    private final int parentCapacity;
+    private Factory factory;
     /** List of consecutive squares **/
-    private List<Square> grid;
-    private Map<Square, AbstractSudokuConsecutiveSet<Integer>> regions;
-    private Map<Square, AbstractSudokuConsecutiveSet<Integer>> rows;
-    private Map<Square, AbstractSudokuConsecutiveSet<Integer>> columns;
+    private List<Square> keySet;
+    private Map<Square, AbstractSudokuSet<Integer>> regions;
+    private Map<Square, AbstractSudokuSet<Integer>> rows;
+    private Map<Square, AbstractSudokuSet<Integer>> columns;
 
     public Grid(int size){
         this.size = size;
         parentCapacity = size * size;
-        grid = new ArrayList<Square>(parentCapacity);
-        rows = Collections.synchronizedMap(new HashMap<>());
-        columns = Collections.synchronizedMap(new HashMap<>());
-        regions = Collections.synchronizedMap(new HashMap<>());
+        keySet = buildGrid();
+        factory = new Factory(keySet, parentCapacity);
+        rows = factory.getRows();
+        columns = factory.getColumns();
+        regions = factory.getRegions();
+        status = 0;
+
     }
     public synchronized String getState(){
-        return grid.toString();
+        return keySet.toString();
     }
 
     protected int getLinearIndex(int x, int y){
@@ -41,35 +47,35 @@ public abstract class Grid {
     }
     protected boolean set(int x, int y, int z){
         int index = getLinearIndex(x, y);
-        Square current = grid.get(index);
+        Square current = keySet.get(index);
         return current.set(z);
     }
     protected Square get(int x, int y){
         int index = getLinearIndex(x, y);
-        return grid.get(index);
+        return keySet.get(index);
     }
     /** returns true is a token can be legally placed based on region, column and row**/
-    protected boolean isPackable(int x, int y, int n){
-        return checkRegion(x, y, n)
+    protected boolean isPackable(int x, int y, int z){
+        return checkRegion(x, y, z)
                 &&checkSpace(x, y)
-                &&checkRow(x, y,n)
-                &&checkCol(x, y,n);
+                &&checkRow(x, y,z)
+                &&checkCol(x, y,z);
     }
     protected boolean solve(List<Square> grid){
         return solve();
     }
     protected boolean inSet(int x, int y, int z, List<?> areaSelector){
         Square s = get(x, y);
-        if(areaSelector == AbstractSudokuConsecutiveSet.REGION){
+        if(areaSelector == AbstractSudokuSet.REGION){
             return regions.get(s).equals(z);
-        }else if(areaSelector == AbstractSudokuConsecutiveSet.ROW){
+        }else if(areaSelector == AbstractSudokuSet.ROW){
             return rows.get(s).equals(z);
-        }else if(areaSelector == AbstractSudokuConsecutiveSet.COL){
+        }else if(areaSelector == AbstractSudokuSet.COL){
             return columns.get(s).equals(z);
         }else{return false;}
     }
     protected boolean solve(){
-        for(Square s: grid) if(!s.equals((Object) 0)){
+        for(Square s: keySet) if(!s.equals((Object) 0)){
             return false;
         }
         return true;
@@ -78,14 +84,14 @@ public abstract class Grid {
         return get(x, y).equals((Object)z);
     }
     protected boolean checkCol(int x, int y, int z) {
-        return inSet(x, y, z, AbstractSudokuConsecutiveSet.COL);
+        return inSet(x, y, z, AbstractSudokuSet.COL);
     }
 
     protected boolean checkRow(int x, int y, int z) {
-        return inSet(x, y, z, AbstractSudokuConsecutiveSet.ROW);
+        return inSet(x, y, z, AbstractSudokuSet.ROW);
     }
     protected boolean checkRegion(int x, int y, int z) {
-        return inSet(x, y, z, AbstractSudokuConsecutiveSet.REGION);
+        return inSet(x, y, z, AbstractSudokuSet.REGION);
     }
 
     protected boolean checkSpace(int x, int y) {
@@ -103,38 +109,10 @@ public abstract class Grid {
     protected Boolean delete(int x, int y, int z) {
         return null;
     }
-    public abstract int getStatus();
-    public abstract int size();
-
-    /**
-     * init an empty grid
-     * @return empty grid structure of type <List><Square> </Square></List>
-     */
-    private List<Square> buildGrid(){
-        ArrayList<Square>  temp = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            for(int j = 0; j < size; j++){
-                temp.add(new Square(i, j, size, Square.READ_WRITE_DELETE));
-            }
-        }
-        return temp;
+    public List<?> keySet(){
+        return keySet;
     }
 
-    private Map<Square, AbstractSudokuConsecutiveSet<Integer>> getLogicSet(List<?> areaSelector){
-        /* dynamic, relies on polymorphism */
-        Map<Square, AbstractSudokuConsecutiveSet<Integer>> temp = Collections.synchronizedMap(new HashMap<>());
-        for(Square s: grid){
-            if(areaSelector == AbstractSudokuConsecutiveSet.REGION){
-                temp.put(s, new RegionSet<>(s, size));
-            }else if(areaSelector == AbstractSudokuConsecutiveSet.ROW){
-                temp.put(s, new RowSet<>(s, size, grid));
-            }else if(areaSelector == AbstractSudokuConsecutiveSet.COL){
-                temp.put(s, new ColumnSet<>(s, size, grid));
-            }else{}
-        }
-        return temp;
-    }
-
-
+    protected abstract List<Square> buildGrid();
 
 }

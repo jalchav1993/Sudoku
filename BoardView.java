@@ -11,20 +11,16 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.Square;
+import edu.utep.cs.cs4330.sudoku.model.SimpleBoard;
 
 /**
  * A special view class to display a Sudoku board modeled by the
- * {@link edu.utep.cs.cs4330.sudoku.model.Board} class. You need to write code for
+ * {@link SimpleBoard} class. You need to write code for
  * the <code>onDraw()</code> method.
  *
- * @see edu.utep.cs.cs4330.sudoku.model.Board
+ * @see SimpleBoard
  * @author cheon
  */
 public class BoardView extends View {
@@ -44,9 +40,10 @@ public class BoardView extends View {
     /** Number of squares in rows and columns.*/
     private int boardSize = 9;
 
-    /** Board to be displayed by this view. */
-    private Board board;
+    /** SimpleBoard to be displayed by this view. */
+    private SimpleBoard board;
 
+    /** Width and height of each square. This is automatically calculated
     /** Width and height of each square. This is automatically calculated
      * this view's dimension is changed. */
     private float squareSize;
@@ -96,7 +93,7 @@ public class BoardView extends View {
     }
 
     /** Set the board to be displayed by this view. */
-    public void setBoard(Board board) {
+    public void setBoard(SimpleBoard board) {
         this.board = board;
         boardSize = board.size();
     }

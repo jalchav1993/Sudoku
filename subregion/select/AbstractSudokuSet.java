@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4330.sudoku.subregion.factory;
+package edu.utep.cs.cs4330.sudoku.subregion.select;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -10,7 +10,7 @@ import edu.utep.cs.cs4330.sudoku.model.Square;
  * Created by aex on 2/27/18.
  */
 
-public abstract class AbstractSudokuConsecutiveSet<T> {
+public abstract class AbstractSudokuSet<T> {
     /* Class Constants */
     public static final List<?> REGION = new ArrayList<Integer>(){{
         add(1); add(1); add(1); add(1); add(0);
@@ -39,7 +39,7 @@ public abstract class AbstractSudokuConsecutiveSet<T> {
     private Map<Square, T> sudokuSet;
 
     /* Class Constructor T must be an array list*/
-    public AbstractSudokuConsecutiveSet(Square key, int capacity, T t, List<?> grid){
+    public AbstractSudokuSet(Square key, int capacity, T t, List<?> grid){
         this.key = key;
         this.capacity = capacity;
         this.t = t;
