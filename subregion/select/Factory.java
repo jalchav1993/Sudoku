@@ -13,47 +13,32 @@ import java.util.Map;
 public class Factory {
 
     private List<Square> keySet;
-    private final int parentCapacity;
-    public Factory(List<Square> keySet, int parentCapacity){
+    private final int parentSize;
+    public Factory(List<Square> keySet, int parentSize){
         this.keySet = keySet;
-        this.parentCapacity = parentCapacity;
+        this.parentSize = parentSize;
     }
-    public Map<Square, AbstractSudokuSet<Integer>> getRegions(){
-        Map<Square, AbstractSudokuSet<Integer>> regions = Collections.synchronizedMap(new HashMap<>());
+    public Map<Square, List<Square>> getRegions(){
+        Map<Square, List<Square>> regions = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
-            regions.put(s, new RegionSet<Integer>(s,parentCapacity));
+            regions.put(s, new RegionSet(s, parentSize, keySet));
         }
         return regions;
     }
-    public Map<Square, AbstractSudokuSet<Integer>> getRows(){
-        Map<Square, AbstractSudokuSet<Integer>> rows = Collections.synchronizedMap(new HashMap<>());
+    public Map<Square, List<Square>>getRows(){
+        Map<Square, List<Square>> rows = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
-            rows.put(s, new RowSet<Integer>(s,parentCapacity, keySet));
+            rows.put(s, new RowSet(s, parentSize, keySet));
         }
         return rows;
     }
-    public Map<Square, AbstractSudokuSet<Integer>> getColumns(){
-        Map<Square, AbstractSudokuSet<Integer>> columns = Collections.synchronizedMap(new HashMap<>());
+    public Map<Square, List<Square>> getColumns(){
+        Map<Square, List<Square>> cols = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
-            columns.put(s, new ColumnSet<>(s,parentCapacity, keySet));
+            cols.put(s, new ColumnSet(s, parentSize, keySet));
         }
-        return columns;
+        return cols;
     }
-//    private Map<Square, AbstractSudokuSet<Integer>> getLogicSet(List<?> areaSelector){
-//        /* dynamic, relies on polymorphism */
-//        Map<Square, AbstractSudokuSet<Integer>> temp = Collections.synchronizedMap(new HashMap<>());
-//        for(Square s: keySet){
-//            if(areaSelector == AbstractSudokuSet.REGION){
-//                temp.put(s, new RegionSet<>(s, size));
-//            }else if(areaSelector == AbstractSudokuSet.ROW){
-//                temp.put(s, new RowSet<>(s, size, keySet));
-//            }else if(areaSelector == AbstractSudokuSet.COL){
-//                temp.put(s, new ColumnSet<>(s, size, keySet));
-//            }else{}
-//        }
-//        return temp;
-//    }
-//
 
 
 }

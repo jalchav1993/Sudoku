@@ -12,8 +12,8 @@ import java.util.List;
 public class Square {
     /* Permissions may only be set once for security reasons */
     /* For permissions and flexible programing toolkit */
-    /* Useful for when more than 2 players use the grid,*/
-    /* since the owner of the gui will need flexible permissions to access the grid */
+    /* Useful for when more than 2 players use the keySet,*/
+    /* since the owner of the gui will need flexible permissions to access the keySet */
     /* for instance a square belongs to another client, this client will have permission 600 */
     /* indicate ownership, 666 means the square belongs to the client */
     /* permissions will probably be handled by a we service later on, for multiplaying */

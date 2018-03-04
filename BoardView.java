@@ -48,13 +48,13 @@ public class BoardView extends View {
      * this view's dimension is changed. */
     private float squareSize;
 
-    /** Translation of screen coordinates to display the grid at the center. */
+    /** Translation of screen coordinates to display the keySet at the center. */
     private float transX;
 
-    /** Translation of screen coordinates to display the grid at the center. */
+    /** Translation of screen coordinates to display the keySet at the center. */
     private float transY;
 
-    /** Paint to draw the background of the grid. */
+    /** Paint to draw the background of the keySet. */
     private final Paint boardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     {
         int boardColor = Color.rgb(201, 186, 145);
@@ -112,7 +112,7 @@ public class BoardView extends View {
 
     }
 
-    /** Draw horizontal and vertical grid lines. */
+    /** Draw horizontal and vertical keySet lines. */
     private void drawGrid(Canvas canvas) {
 
     }

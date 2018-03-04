@@ -13,14 +13,6 @@ public class SimpleBoard extends Grid implements Board{
     public SimpleBoard(int size) {
         super(size);
     }
-    @Override
-    public int getStatus(){
-        return status;
-    }
-    @Override
-    public int size() {
-        return size;
-    }
 
     /**
      * Simple and Easy SimpleBoard
