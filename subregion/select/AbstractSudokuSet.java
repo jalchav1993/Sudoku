@@ -36,6 +36,12 @@ public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
         }
         return true;
     }
+    protected int getSigma() {
+        return (int)Math.sqrt(parentSize);
+    }
+
+    protected abstract int calculateIndex(Square root);
+    protected abstract int updChangeInDelta(int delta, int axis);
 
     private List<Integer> getDelta(int axis) {
         int delta = 0;
@@ -46,12 +52,6 @@ public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
         }
         return dVector;
     }
-    protected int getSigma() {
-        return (int)Math.sqrt(parentSize);
-    }
-
-    protected abstract int calculateIndex(Square root);
-    protected abstract int updChangeInDelta(int delta, int axis);
 
     private void getSquareConsecutives(Square key, List<Integer> x, List<Integer> y){
         for (int i = 1; i < parentSize; i ++){

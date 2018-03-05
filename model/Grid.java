@@ -1,8 +1,5 @@
 package edu.utep.cs.cs4330.sudoku.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,20 +17,19 @@ public abstract class Grid implements Board{
     final int size;
     final int status;
     private final int parentCapacity;
-    private Factory factory;
+    private SudokuSetFactory factory;
     /** List of consecutive squares **/
     private List<Square> keySet;
-    private Map<Square, AbstractSudokuSet<Square>> regions;
+    private Map<Square, List<Square>> regions;
     private Map<Square, List<Square>> rows;
     private Map<Square, List<Square>> columns;
 
     public Grid(int size){
-        System.out.println("why me");
         this.size = size;
         parentCapacity = size * size;
         keySet = buildGrid();
         /* factory should buid the keySquare set not ask for it */
-        factory = new Factory(keySet, size);
+        factory = new SudokuSetFactory(keySet, size);
         rows = factory.getRows();
         columns = factory.getColumns();
         regions = factory.getRegions();

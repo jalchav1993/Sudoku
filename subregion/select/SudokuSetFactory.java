@@ -10,22 +10,22 @@ import java.util.Map;
  * Created by aex on 2/28/18.
  */
 /*may need to refresh */
-public class Factory {
+public class SudokuSetFactory {
 
     private List<Square> keySet;
     private final int parentSize;
-    public Factory(List<Square> keySet, int parentSize){
+    public SudokuSetFactory(List<Square> keySet, int parentSize){
         this.keySet = keySet;
         this.parentSize = parentSize;
     }
-    public Map<Square, AbstractSudokuSet<Square>> getRegions(){
-        Map<Square, AbstractSudokuSet<Square>> regions = Collections.synchronizedMap(new HashMap<>());
+    public Map<Square, List<Square>> getRegions(){
+        Map<Square, List<Square>> regions = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
             regions.put(s, new RegionSet(s, parentSize, keySet));
         }
         return regions;
     }
-    public Map<Square, List<Square>>getRows(){
+    public Map<Square, List<Square>> getRows(){
         Map<Square, List<Square>> rows = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
             rows.put(s, new RowSet(s, parentSize, keySet));
