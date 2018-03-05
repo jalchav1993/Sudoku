@@ -9,14 +9,14 @@ import edu.utep.cs.cs4330.sudoku.model.Square;
  * Created by aex on 2/27/18.
  */
 // extends hash map, factory should take care of this
-public abstract class AbstractSudokuSet extends ArrayList<Square>{
+public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
 
     /* Class Variables */
-    protected final List<Square> keySet;
+    protected final List<T> keySet;
     protected final int parentSize;
 
     /* Class Constructor */
-    public AbstractSudokuSet(Square key,int parentSize, List<Square> keySet){
+    public AbstractSudokuSet(Square key,int parentSize, List<T> keySet){
         super(parentSize);
         this.parentSize = parentSize;
         this.keySet = keySet;
@@ -24,11 +24,17 @@ public abstract class AbstractSudokuSet extends ArrayList<Square>{
     }
 
     /* Class Public Methods */
-
+    @Override
+    public boolean contains(Object o){
+        return inset((int) o);
+    }
     /* Inner Logic, Implemented by user for especial area */
     /* row n * 1, column 1 * n, or region sqrt(n) * sqrt(n) */
-    public boolean inset(Square s){
-        return false;
+    public boolean inset(int z){
+        for(T compareTo: this){
+            if(compareTo.equals(z)) return false;
+        }
+        return true;
     }
 
     private List<Integer> getDelta(int axis) {

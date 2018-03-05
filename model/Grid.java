@@ -23,7 +23,7 @@ public abstract class Grid implements Board{
     private Factory factory;
     /** List of consecutive squares **/
     private List<Square> keySet;
-    private Map<Square, List<Square>> regions;
+    private Map<Square, AbstractSudokuSet<Square>> regions;
     private Map<Square, List<Square>> rows;
     private Map<Square, List<Square>> columns;
 
@@ -69,12 +69,12 @@ public abstract class Grid implements Board{
         return keySet.get(index);
     }
     /** returns true is a token can be legally placed based on region, column and row**/
-//    protected boolean isPackable(int x, int y, int z){
-//        return checkRegion(x, y, z)
-//                &&checkSpace(x, y)
-//                &&checkRow(x, y,z)
-//                &&checkCol(x, y,z);
-//    }
+    protected boolean isPackable(int x, int y, int z){
+        return checkRegion(x, y, z)
+                &&checkSpace(x, y)
+                &&checkRow(x, y,z)
+                &&checkCol(x, y,z);
+    }
     protected boolean solve(){
         for(Square s: keySet) if(!s.equals((Object) 0)){
             return false;
@@ -84,16 +84,19 @@ public abstract class Grid implements Board{
     protected boolean compareTo(int x, int y, int z){
         return get(x, y).equals((Object)z);
     }
-//    protected boolean checkCol(int x, int y, int z) {
-//        return inSet(x, y, z, AbstractSudokuSet.COL);
-//    }
-//
-//    protected boolean checkRow(int x, int y, int z) {
-//        return inSet(x, y, z, AbstractSudokuSet.ROW);
-//    }
-//    protected boolean checkRegion(int x, int y, int z) {
-//        return inSet(x, y, z, AbstractSudokuSet.REGION);
-//    }
+    protected boolean checkCol(int x, int y, int z) {
+        Square compareTo = get(x, y);
+        return columns.get(compareTo).contains(z);
+    }
+
+    protected boolean checkRow(int x, int y, int z) {
+        Square compareTo = get(x, y);
+        return rows.get(compareTo).contains(z);
+    }
+    protected boolean checkRegion(int x, int y, int z) {
+        Square compareTo = get(x, y);
+        return regions.get(compareTo).contains(z);
+    }
 
     protected boolean checkSpace(int x, int y) {
         return compareTo(x, y, 0); /* 0  means not used */
@@ -102,9 +105,9 @@ public abstract class Grid implements Board{
      * returns true is a token was placed in a box
      * **/
     protected Boolean put(int x, int y, int z){
-        //if(isPackable(x, y, z)){
-          //  return set(x, y, z);
-        //}
+        if(isPackable(x, y, z)){
+            return set(x, y, z);
+        }
         return false;
     }
     protected Boolean delete(int x, int y, int z) {

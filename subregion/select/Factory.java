@@ -18,8 +18,8 @@ public class Factory {
         this.keySet = keySet;
         this.parentSize = parentSize;
     }
-    public Map<Square, List<Square>> getRegions(){
-        Map<Square, List<Square>> regions = Collections.synchronizedMap(new HashMap<>());
+    public Map<Square, AbstractSudokuSet<Square>> getRegions(){
+        Map<Square, AbstractSudokuSet<Square>> regions = Collections.synchronizedMap(new HashMap<>());
         for(Square s: keySet){
             regions.put(s, new RegionSet(s, parentSize, keySet));
         }
