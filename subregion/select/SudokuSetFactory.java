@@ -1,41 +1,40 @@
 package edu.utep.cs.cs4330.sudoku.subregion.select;
 
-import edu.utep.cs.cs4330.sudoku.model.*;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 /**
- * Created by aex on 2/28/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/28/18.
  */
 /*may need to refresh */
-public class SudokuSetFactory {
+public class SudokuSetFactory<S> {
 
-    private List<Square> keySet;
+    private List<S> grid;
     private final int parentSize;
-    public SudokuSetFactory(List<Square> keySet, int parentSize){
-        this.keySet = keySet;
-        this.parentSize = parentSize;
+    public SudokuSetFactory(List<S> grid){
+        this.grid = grid;
+        this.parentSize = grid.size();
     }
-    public Map<Square, List<Square>> getRegions(){
-        Map<Square, List<Square>> regions = Collections.synchronizedMap(new HashMap<>());
-        for(Square s: keySet){
-            regions.put(s, new RegionSet(s, parentSize, keySet));
+    public Map<S, List<S>> getRegions(){
+        Map<S, List<S>> regions = Collections.synchronizedMap(new HashMap<>());
+        for(S s: grid){
+            regions.put(s, new RegionSet(s, parentSize, grid));
         }
         return regions;
     }
-    public Map<Square, List<Square>> getRows(){
-        Map<Square, List<Square>> rows = Collections.synchronizedMap(new HashMap<>());
-        for(Square s: keySet){
-            rows.put(s, new RowSet(s, parentSize, keySet));
+    public Map<S, List<S>> getRows(){
+        Map<S, List<S>> rows = Collections.synchronizedMap(new HashMap<>());
+        for(S s: grid){
+            rows.put(s, new RowSet(s, parentSize, grid));
         }
         return rows;
     }
-    public Map<Square, List<Square>> getColumns(){
-        Map<Square, List<Square>> cols = Collections.synchronizedMap(new HashMap<>());
-        for(Square s: keySet){
-            cols.put(s, new ColumnSet(s, parentSize, keySet));
+    public Map<S, List<S>> getColumns(){
+        Map<S, List<S>> cols = Collections.synchronizedMap(new HashMap<>());
+        for(S s: grid){
+            cols.put(s, new ColumnSet(s, parentSize, grid));
         }
         return cols;
     }

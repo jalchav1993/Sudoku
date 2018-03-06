@@ -5,18 +5,19 @@ import java.util.List;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
- * Created by aex on 2/27/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/28/18.
  */
 
-public class ColumnSet extends AbstractSudokuSet {
+public class ColumnSet<T> extends AbstractSudokuSet<T> {
 
-    public ColumnSet(Square key, int parentSize, List<Square> keySet) {
+    public ColumnSet(T key, int parentSize, List<T> keySet) {
         super(key, parentSize, keySet);
     }
 
     @Override
-    protected int calculateIndex(Square root) {
-        return root.y;
+    protected int calculateIndex(Object root) {
+        return ((Square)root).y;
     }
 
     @Override

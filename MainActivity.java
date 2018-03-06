@@ -10,7 +10,7 @@ import android.widget.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.sudoku.model.SimpleBoard;
+import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -34,7 +34,7 @@ import edu.utep.cs.cs4330.sudoku.model.SimpleBoard;
  */
 public class MainActivity extends AppCompatActivity {
 
-    private SimpleBoard board;
+    private SimpleGrid board;
     private int[] selected;
 
     private BoardView boardView;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        board = new SimpleBoard(9);
+        board = new SimpleGrid(9);
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
         boardView.addSelectionListener(this::squareSelected);

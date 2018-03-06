@@ -6,20 +6,22 @@ import java.util.Map;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
- * Created by aex on 2/27/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/27/18.
  */
 
-public class RowSet extends AbstractSudokuSet{
+public class RowSet<T> extends AbstractSudokuSet<T>{
 
 
-    public RowSet(Square key, int parentSize, List<Square> keySet) {
+    public RowSet(T key, int parentSize, List<T> keySet) {
         super(key, parentSize, keySet);
     }
 
     @Override
-    protected int calculateIndex(Square root) {
-        return root.x * parentSize;
+    protected int calculateIndex(Object root) {
+        return ((Square) root).x * parentSize;
     }
+
 
     @Override
     protected int updChangeInDelta(int delta, int axis) {

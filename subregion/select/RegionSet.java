@@ -5,21 +5,25 @@ import java.util.Map;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
- * Created by aex on 2/27/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/27/18.
  */
 
-public class RegionSet extends AbstractSudokuSet{
+public class RegionSet<T> extends AbstractSudokuSet<T>{
 
 
-    public RegionSet(Square key, int parentSize, List<Square> keySet) {
+    public RegionSet(T key, int parentSize, List<T> keySet) {
         super(key, parentSize, keySet);
     }
 
     @Override
-    protected int calculateIndex(Square root) {
+    protected int calculateIndex(Object root) {
+        root = ((Square) root);
         //could use setters and getters
-        return (root.x - (root.x % getSigma()) *parentSize)+(root.y- (root.y % getSigma()) *parentSize);
+        return (((Square) root).x - (((Square) root).x % getSigma()) *parentSize)+
+                (((Square) root).y- (((Square) root).y % getSigma()) *parentSize);
     }
+
 
     @Override
     protected int updChangeInDelta(int delta, int axis) {

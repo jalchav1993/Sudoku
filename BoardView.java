@@ -13,14 +13,14 @@ import android.view.ViewTreeObserver;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.sudoku.model.SimpleBoard;
+import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
 
 /**
  * A special view class to display a Sudoku board modeled by the
- * {@link SimpleBoard} class. You need to write code for
+ * {@link SimpleGrid} class. You need to write code for
  * the <code>onDraw()</code> method.
  *
- * @see SimpleBoard
+ * @see SimpleGrid
  * @author cheon
  */
 public class BoardView extends View {
@@ -40,8 +40,8 @@ public class BoardView extends View {
     /** Number of squares in rows and columns.*/
     private int boardSize = 9;
 
-    /** SimpleBoard to be displayed by this view. */
-    private SimpleBoard board;
+    /** SimpleGrid to be displayed by this view. */
+    private SimpleGrid board;
 
     /** Width and height of each square. This is automatically calculated
     /** Width and height of each square. This is automatically calculated
@@ -93,7 +93,7 @@ public class BoardView extends View {
     }
 
     /** Set the board to be displayed by this view. */
-    public void setBoard(SimpleBoard board) {
+    public void setBoard(SimpleGrid board) {
         this.board = board;
         boardSize = board.size();
     }

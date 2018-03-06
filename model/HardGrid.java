@@ -3,11 +3,13 @@ package edu.utep.cs.cs4330.sudoku.model;
 import java.util.List;
 
 /**
- * Created by aex on 2/28/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/28/18.
  */
 
-public class HardBoard extends Grid implements Board{
-    public HardBoard(int size) {
+public class HardGrid extends Grid {
+
+    public HardGrid(int size) {
         super(size);
     }
 
@@ -15,4 +17,6 @@ public class HardBoard extends Grid implements Board{
     protected List<Square> buildGrid() {
         return null;
     }
+
+
 }

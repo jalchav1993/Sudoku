@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by aex on 2/19/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 2/19/18.
  */
 
 public class Square {

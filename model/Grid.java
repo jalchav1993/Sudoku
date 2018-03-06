@@ -1,115 +1,87 @@
 package edu.utep.cs.cs4330.sudoku.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import edu.utep.cs.cs4330.sudoku.subregion.select.*;
-
+import edu.utep.cs.cs4330.sudoku.subregion.select.SudokuSetFactory;
 
 /**
- * Created by aex on 2/27/18.
+ * @author: Jesus Chavez
+ * @macuser: aex on 3/5/18.
  */
 
-public abstract class Grid implements Board{
-    /* inner class variables */
-    //private final Players p1, p2;
-
-    final int size;
-    final int status;
-    private final int parentCapacity;
+public abstract class Grid<S> extends ArrayList<S>{
+    /**
+     * @assert(S is a square)
+     */
+    /* static constants */
+    public static final int REGION = 0;
+    public static final int ROW = 1;
+    public static final int COLUMN = 2;
+    /* class variables */
+    private Map<S, List<S>> regions;
+    private Map<S, List<S>> rows;
+    private Map<S, List<S>> columns;
     private SudokuSetFactory factory;
-    /** List of consecutive squares **/
-    private List<Square> keySet;
-    private Map<Square, List<Square>> regions;
-    private Map<Square, List<Square>> rows;
-    private Map<Square, List<Square>> columns;
-
+    private int size;
     public Grid(int size){
-        this.size = size;
-        parentCapacity = size * size;
-        keySet = buildGrid();
-        /* factory should buid the keySquare set not ask for it */
-        factory = new SudokuSetFactory(keySet, size);
+        factory = new SudokuSetFactory(this);
         rows = factory.getRows();
         columns = factory.getColumns();
         regions = factory.getRegions();
-        status = 0;
-
-    }
-    @Override
-    public synchronized String getState(){
-        return keySet.toString();
-    }
-    @Override
-    public int getStatus(){
-        return status;
+        this.size = size;
     }
     @Override
     public int size() {
         return size;
     }
-    @Override
-    public List<Square> keySet(){
-        return keySet;
-    }
-    protected int getLinearIndex(int x, int y){
-            return x * parentCapacity + y;
-    }
-    protected boolean set(int x, int y, int z){
-        int index = getLinearIndex(x, y);
-        Square current = keySet.get(index);
-        return current.set(z);
-    }
-    protected Square get(int x, int y){
-        int index = getLinearIndex(x, y);
-        return keySet.get(index);
-    }
-    /** returns true is a token can be legally placed based on region, column and row**/
-    protected boolean isPackable(int x, int y, int z){
-        return checkRegion(x, y, z)
-                &&checkSpace(x, y)
-                &&checkRow(x, y,z)
-                &&checkCol(x, y,z);
-    }
-    protected boolean solve(){
-        for(Square s: keySet) if(!s.equals((Object) 0)){
-            return false;
-        }
-        return true;
-    }
-    protected boolean compareTo(int x, int y, int z){
-        return get(x, y).equals((Object)z);
-    }
-    protected boolean checkCol(int x, int y, int z) {
-        Square compareTo = get(x, y);
-        return columns.get(compareTo).contains(z);
-    }
 
-    protected boolean checkRow(int x, int y, int z) {
-        Square compareTo = get(x, y);
-        return rows.get(compareTo).contains(z);
-    }
-    protected boolean checkRegion(int x, int y, int z) {
-        Square compareTo = get(x, y);
-        return regions.get(compareTo).contains(z);
-    }
-
-    protected boolean checkSpace(int x, int y) {
-        return compareTo(x, y, 0); /* 0  means not used */
-    }
     /**
-     * returns true is a token was placed in a box
-     * **/
-    protected Boolean put(int x, int y, int z){
-        if(isPackable(x, y, z)){
-            return set(x, y, z);
+     * Driver for set(int index) of superclass
+     * @param x
+     * @param y
+     * @param z
+     * @return
+     */
+    public boolean set(int x, int y, int z){
+        S s = get(x, y);
+        return ((Square) s).set(z);
+    }
+    public S get(int x, int y){
+        int index = getLinearIndex(x, y);
+        return get(index);
+    }
+    public boolean inset(int x, int y, int z, int areaSelector){
+        S square = get(x,y);
+        List<S> area = null;
+        int index;
+        int compareTo;
+        if(areaSelector == REGION){
+            area = regions.get(square);
+        } else if(areaSelector == ROW){
+            area = rows.get(square);
+        } else if(areaSelector == COLUMN){
+            area = columns.get(square);
+        } else{
+            area = null;
         }
-        return false;
+        index = getLinearIndex(x, y);
+        compareTo = (int) area.get(index);
+        return compareTo == z;
+
     }
-    protected Boolean delete(int x, int y, int z) {
-        return null;
+
+    /**
+     * Returns linear position of index
+     * @param x
+     * @param y
+     * @return : (return/x)-y = size
+     */
+    private int getLinearIndex(int x, int y){
+        return x * size + y;
     }
-    /*different levels of difficulty in keySet */
     protected abstract List<Square> buildGrid();
+
 
 }
