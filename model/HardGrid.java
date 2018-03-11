@@ -1,6 +1,4 @@
-package edu.utep.cs.cs4330.sudoku.model;
-
-import java.util.List;
+package edu.utep.cs.cs4330.model;
 
 /**
  * @author: Jesus Chavez
@@ -14,8 +12,7 @@ public class HardGrid extends Grid {
     }
 
     @Override
-    protected List<Square> buildGrid() {
-        return null;
+    protected void buildGrid() {
     }
 
 

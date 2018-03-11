@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4330.sudoku;
+package edu.utep.cs.cs4330;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -13,7 +13,7 @@ import android.view.ViewTreeObserver;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
+import edu.utep.cs.cs4330.model.SimpleGrid;
 
 /**
  * A special view class to display a Sudoku board modeled by the

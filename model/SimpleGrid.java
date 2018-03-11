@@ -1,16 +1,14 @@
-package edu.utep.cs.cs4330.sudoku.model;
+package edu.utep.cs.cs4330.model;
 
 /** An abstraction of Sudoku puzzle. */
 /** Wrap for a new game */
 
-import java.util.ArrayList;
-import java.util.List;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 2/28/18.
  */
 /** future use as a container for players */
-public class SimpleGrid extends Grid {
+public class SimpleGrid<S> extends Grid<S> {
     /** Create a new board of the given size. */
     // public SimpleGrid (int size, Player p1, Player p2, NetIntent... )
     public SimpleGrid(int size) {
@@ -23,14 +21,12 @@ public class SimpleGrid extends Grid {
      * @return List l: forevery s in (i,k), l.add(s);
      */
     @Override
-    protected List<Square> buildGrid() {
-        List<Square> temp = new ArrayList<>();
-        for (int i = 0; i < size(); i++) {
-            for(int j = 0; j < size(); j++){
-                temp.add(new Square(i, j, size(), Square.READ_WRITE_DELETE));
+    protected void buildGrid() {
+        for (int i = 0; i < length(); i++) {
+            for(int j = 0; j < length(); j++){
+                add((S) new Square(i, j,0, Square.READ_WRITE_DELETE));
             }
         }
-        return temp;
     }
 
 }

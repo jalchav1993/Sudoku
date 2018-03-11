@@ -1,9 +1,4 @@
-package edu.utep.cs.cs4330.sudoku.model;
-
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
+package edu.utep.cs.cs4330.model;
 
 /**
  * @author: Jesus Chavez
@@ -32,7 +27,7 @@ public class Square {
     public final int x;
     public final int y;
     private final int parentCapacity;
-    private final int permissions;
+    public final int permissions;
     private int value;
 
     public Square(int x, int y, int parentCapacity, int permissions){
@@ -44,40 +39,61 @@ public class Square {
         else this.permissions = Square.N_N_N;
         value = 0;
     }
+
+    /**
+     *
+     * @param o
+     * @return
+     */
     @Override
     public boolean equals(Object o){
         /* casting for polymorphism */
-        return this.value == ((Square) o).get();
+        return this.value == ((Square) o).get()&&
+                this.x ==((Square) o).x&&
+                this.y ==((Square) o).y;
     }
+
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString(){
         return value+"";
     }
+    public boolean hasValue(int v){
+        return value == v;
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
     public boolean set(int value){
         if(checkPermission(Square.WRITE_N_N)) {
             this.value = value;
             return true;
         } else return false;
     }
+
+    /**
+     *
+     * @return
+     */
     public int get(){
         if(checkPermission(Square.READ_N_N))
             return this.value;
         else return -1;
     }
+
+    /**
+     *
+     */
     public void delete(){
         if(checkPermission(Square.DELETE_N_N))
             this.value = 0;
     }
-    /**
-     * @return
-     */
-    public boolean isDeletable(){
-        return checkPermission(Square.DELETE_N_N);
-    }
-    public boolean isWritable(){
-        return checkPermission(Square.WRITE_N_N);
-    }
-
     /**
      * Checks if privileges is part of permission set
      * @param privileges look at data documentation
@@ -96,20 +112,21 @@ public class Square {
 
     /**
      * Checks weather requested action's privileges are allowed using the squares permissions
-     * @param privileges look at data documentation
+     * @param privileges
+     * @see public final static int READ_WRITE_DELETE
      * @return if privileges c (permissions(of the square)) -> true else -> false
      */
     private boolean checkPermission(int privileges){
         /* top permission is always 666 for read, write, delete */
         /* ratio is 6 gives order of magnitude of request*/
         int magnitude_tc = privileges/Square.PERMISSION_RATIO;
-        if(magnitude_tc > Math.pow(10,2)){ /* mtc > 10^2 means they want to read */
-            return (permissions - Square.WRITE_N_N - Square.DELETE_N_N) == privileges;
-        } else if(magnitude_tc < Math.pow(10,2) && magnitude_tc > Math.pow(10,1)){
+        if(magnitude_tc >= 100){ /* mtc > 10^2 means they want to read */
+            return permissions - Square.READ_N_N >= 0;
+        } else if(magnitude_tc < 100 && magnitude_tc >= 10){
             /*666/6 < 100 && 666/6 > 10 means they want to delete */
-            return (permissions - Square.READ_N_N - Square.DELETE_N_N) == privileges;
+            return permissions - Square.READ_N_N-Square.WRITE_N_N >= 0;
         } else{ /*666/6 < 10 means they want to delete */
-            return (permissions - Square.WRITE_N_N - Square.READ_N_N) == privileges;
+            return permissions - Square.READ_N_N-Square.WRITE_N_N-Square.DELETE_N_N >=0;
         }
     }
 }
