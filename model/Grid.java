@@ -1,11 +1,8 @@
-package edu.utep.cs.cs4330.model;
-
+package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import edu.utep.cs.cs4330.select.SudokuSetFactory;
-
+import edu.utep.cs.cs4330.sudoku.select.*;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 3/5/18.
@@ -24,9 +21,11 @@ public abstract class Grid<S> extends ArrayList<S>{
     private Map<S, List<S>> rows;
     private Map<S, List<S>> columns;
     private SudokuSetFactory factory;
-    private int length;
+    private int length, capacity;
     public Grid(int length){
         this.length = length;
+        capacity = (int) Math.pow(length, 2);
+        super.ensureCapacity(capacity);
         factory = new SudokuSetFactory(this);
         rows = factory.getRows();
         columns = factory.getColumns();
@@ -36,10 +35,7 @@ public abstract class Grid<S> extends ArrayList<S>{
     public int length() {
         return length;
     }
-    @Override
-    public int size(){
-        return (int) Math.pow(length(), 2);
-    }
+
     /**
      * Driver for set(int index) of superclass
      * @see ArrayList get()

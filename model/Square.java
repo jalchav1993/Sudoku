@@ -1,5 +1,4 @@
-package edu.utep.cs.cs4330.model;
-
+package edu.utep.cs.cs4330.sudoku.model;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 2/19/18.

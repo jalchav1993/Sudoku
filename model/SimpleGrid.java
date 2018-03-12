@@ -1,5 +1,4 @@
-package edu.utep.cs.cs4330.model;
-
+package edu.utep.cs.cs4330.sudoku.model;
 /** An abstraction of Sudoku puzzle. */
 /** Wrap for a new game */
 

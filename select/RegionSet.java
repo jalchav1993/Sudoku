@@ -1,7 +1,7 @@
-package edu.utep.cs.cs4330.select;
+package edu.utep.cs.cs4330.sudoku.select;
 import java.util.List;
 
-import edu.utep.cs.cs4330.model.Square;
+import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * @author: Jesus Chavez
@@ -16,10 +16,10 @@ public class RegionSet<T> extends AbstractSudokuSet<T>{
     }
 
     @Override
-    public int calculateIndex(T root) {
+    public int getRootIndex(T root) {
         //could use setters and getters
         Square s = (Square) root;
-        return (s.x - s.x % getSigma())+ (s.y- (s.y % getSigma()))*parentSize;
+        return (s.x - s.x % getSigma())+ (s.y- (s.y % getSigma()))* parentCapacity;
     }
     @Override
     public int updChangeInDelta(int delta, int axis) {

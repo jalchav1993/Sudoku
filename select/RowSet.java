@@ -1,8 +1,7 @@
-package edu.utep.cs.cs4330.select;
-
+package edu.utep.cs.cs4330.sudoku.select;
 import java.util.List;
 
-import edu.utep.cs.cs4330.model.Square;
+import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * @author: Jesus Chavez
@@ -17,8 +16,8 @@ public class RowSet<T> extends AbstractSudokuSet<T>{
     }
 
     @Override
-    protected int calculateIndex(Object root) {
-        return ((Square) root).x * parentSize;
+    protected int getRootIndex(Object root) {
+        return ((Square) root).x * parentCapacity;
     }
 
 

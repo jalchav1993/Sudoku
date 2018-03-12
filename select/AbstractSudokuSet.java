@@ -1,10 +1,10 @@
-package edu.utep.cs.cs4330.select;
+package edu.utep.cs.cs4330.sudoku.select;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.model.Grid;
-import edu.utep.cs.cs4330.model.Square;
+import edu.utep.cs.cs4330.sudoku.model.Grid;
+import edu.utep.cs.cs4330.sudoku.model.Square;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 2/28/18.
@@ -13,18 +13,18 @@ import edu.utep.cs.cs4330.model.Square;
 public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
     /* Class Variables */
     private final List<T> keySet;
-    protected final int parentSize, parentLength;
+    protected final int parentLength, parentCapacity;
 
     /* Class Constructor */
     public AbstractSudokuSet(T key, List<T> keySet){
-        super(((Grid) keySet).size());
         this.parentLength = ((Grid) keySet).length();
-        this.parentSize = ((Grid) keySet).size();
+        parentCapacity = (int) Math.pow(parentLength, 2);
+        super.ensureCapacity(keySet.size());
         this.keySet = keySet;
         build(key);
     }
     public int length(){
-        return parentSize;
+        return parentLength;
     }
     /**
      * Returns true if item is in the set
@@ -45,9 +45,8 @@ public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
         return true;
     }
     protected int getSigma() {
-        return (int)Math.sqrt(parentSize);
+        return (int)Math.sqrt(parentCapacity);
     }
-    protected abstract int calculateIndex(T root);
 
     /** Update Change In Delta
      * @implNote
@@ -67,6 +66,7 @@ public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
      * @see RegionSet
      */
     protected abstract int updChangeInDelta(int delta, int axis);
+    protected abstract int getRootIndex(T root);
     /** Get Delta
      * @implNote
      * <description>
@@ -109,27 +109,30 @@ public abstract class AbstractSudokuSet<T> extends ArrayList<T>{
     protected List<Integer> getDelta(int axis) {
         int delta = 0;
         List<Integer> dVector = new ArrayList<>();
-        for(int i = 0; i < parentSize; i++){
+        for(int i = 0; i < parentCapacity; i++){
             delta = updChangeInDelta(delta, axis);
             dVector.add(Integer.valueOf(delta));
         }
         return dVector;
     }
-    private void getTConsecutives(T key, List<Integer> x, List<Integer> y){
-
-        for (int i = 0; i < parentSize; i ++){
-            Square s = (Square) key;
-            int index = (s.x+ x.get(i))*parentSize+(s.y+y.get(i)) ;
+    private void getTConsecutives(T key, List<Integer> dx, List<Integer> dy){
+        Square s = (Square) key;
+        for (int i = 0, index = updChangeInIndex(key, dx, dy, 0);
+             i < parentCapacity && index < parentCapacity;
+             i ++, index = updChangeInIndex(key, dx, dy, i)){
             add(keySet.get(index));
         }
     }
-
+    private int updChangeInIndex(T key, List<Integer> dx, List<Integer> dy,int i){
+        Square s = (Square) key;
+        return (s.x+ dx.get(i))* parentCapacity +(s.y+dy.get(i));
+    }
     /**
      * @return subset of keySet equal to matrix multiplication of VectorX X VectorY
      * This subset X*Y defines an area such as row, column and n-(size)-size region
      */
     private void build(T root){
-        int index =  calculateIndex(root); //use area selector
+        int index =  getRootIndex(root); //use area selector
         List<Integer> xVector = getDelta(1);
         List<Integer> yVector = getDelta(-1);
         getTConsecutives(root, xVector, yVector);

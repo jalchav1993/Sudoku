@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4330;
+package edu.utep.cs.cs4330.sudoku;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,8 +10,7 @@ import android.widget.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.sudoku.R;
-import edu.utep.cs.cs4330.model.SimpleGrid;
+import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
