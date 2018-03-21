@@ -5,7 +5,7 @@ package edu.utep.cs.cs4330.sudoku.model;
  */
 
 public class Square {
-    /* Permissions may only be set once for security reasons */
+    /* Permissions may only be setValue once for security reasons */
     /* For permissions and flexible programing toolkit */
     /* Useful for when more than 2 players use the keySet,*/
     /* since the owner of the gui will need flexible permissions to access the keySet */
@@ -58,7 +58,7 @@ public class Square {
      */
     @Override
     public String toString(){
-        return value+"";
+        return value+" "+x+" "+ y;
     }
     public boolean hasValue(int v){
         return value == v;
@@ -69,7 +69,7 @@ public class Square {
      * @param value
      * @return
      */
-    public boolean set(int value){
+    public boolean setValue(int value){
         if(checkPermission(Square.WRITE_N_N)) {
             this.value = value;
             return true;
@@ -94,7 +94,7 @@ public class Square {
             this.value = 0;
     }
     /**
-     * Checks if privileges is part of permission set
+     * Checks if privileges is part of permission setValue
      * @param privileges look at data documentation
      * @return if privileges c (Universe_Permissions) -> true else -> false
      */

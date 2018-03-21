@@ -8,28 +8,26 @@ import edu.utep.cs.cs4330.sudoku.model.Square;
  * @macuser: aex on 2/27/18.
  */
 
-public class RowSet<T> extends AbstractSudokuSet<T>{
+public class RowSet<S> extends AbstractSudokuSet<S>{
 
 
-    public RowSet(T key, List<T> keySet) {
+    public RowSet(S key, List<S> keySet) {
         super(key, keySet);
     }
 
     @Override
-    protected int getRootIndex(Object root) {
-        return ((Square) root).x * parentCapacity;
+    public int getRootIndex(Object root, int length) {
+        return ((Square)root).y*length;
     }
-
 
     @Override
-    protected int updChangeInDelta(int delta, int axis) {
-        if(axis > 0){
-            return 0;
-        } else if(axis < 0){
-            return delta+1;
-        }
-        return -1;
+    public int updChangeInDx(int delta, int length) {
+        return 0;
     }
 
+    @Override
+    public int updChangeInDy(int delta, int length) {
+        return delta + 1;
+    }
 
 }

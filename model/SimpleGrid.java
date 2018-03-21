@@ -10,8 +10,8 @@ package edu.utep.cs.cs4330.sudoku.model;
 public class SimpleGrid<S> extends Grid<S> {
     /** Create a new board of the given size. */
     // public SimpleGrid (int size, Player p1, Player p2, NetIntent... )
-    public SimpleGrid(int size) {
-        super(size);
+    public SimpleGrid(int length) {
+        super(length);
     }
 
     /**
