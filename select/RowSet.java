@@ -11,7 +11,7 @@ import edu.utep.cs.cs4330.sudoku.model.Square;
 public class RowSet<S> extends AbstractSudokuSet<S>{
 
 
-    public RowSet(S key, List<S> keySet) {
+    public RowSet(S key, List<S> keySet) throws Exception {
         super(key, keySet);
     }
 
@@ -21,13 +21,18 @@ public class RowSet<S> extends AbstractSudokuSet<S>{
     }
 
     @Override
-    public int updChangeInDx(int delta, int length) {
+    public int updChangeInDx(int delta, int i, int length) {
         return 0;
     }
 
     @Override
-    public int updChangeInDy(int delta, int length) {
+    public int updChangeInDy(int delta, int i, int length) {
         return delta + 1;
+    }
+
+    @Override
+    public int getInitDelta() {
+        return -1;
     }
 
 }

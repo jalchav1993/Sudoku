@@ -1,5 +1,6 @@
 package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import edu.utep.cs.cs4330.sudoku.select.*;
@@ -14,42 +15,27 @@ public abstract class Grid<S> extends ArrayList<S>{
     static final int REGION = 0;
     static final int ROW = 1;
     static final int COLUMN = 2;
+    private SudokuSetFactory<S> factory;
     /* class variables */
     private int length;
-    protected int filled;
-    private Map<S, List<S>> regions;
-    private Map<S, List<S>> rows;
+    private Map<S, List<S>>  regions;
+    private Map<S, List<S>>  rows;
     private Map<S, List<S>> columns;
-    public Grid(int length){
+    public Grid(int length) throws Exception {
         this.length = length;
         int capacity = (int) Math.pow(length, 2);
         super.ensureCapacity(capacity);
         buildGrid();
-        SudokuSetFactory<S> factory = new SudokuSetFactory<>(this);
-        try {
-            rows = factory.getRows();
-            columns = factory.getColumns();
-            regions = factory.getRegions();
-            throw new Exception("" + rows);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        buildMaps();
+        fill(0);
     }
-    public Grid(int length, int filled){
+    public Grid(int length, int filled) throws Exception {
         this.length = length;
         int capacity = (int) Math.pow(length, 2);
         super.ensureCapacity(capacity);
-        this.filled = filled;
         buildGrid();
-        SudokuSetFactory<S> factory = new SudokuSetFactory<>(this);
-        try {
-            rows = factory.getRows();
-            columns = factory.getColumns();
-            regions = factory.getRegions();
-            throw new Exception("" + rows);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        buildMaps();
+        fill(filled);
     }
     public int length() {
         return length;
@@ -78,9 +64,10 @@ public abstract class Grid<S> extends ArrayList<S>{
         int index = getLinearIndex(x, y);
         return get(index);
     }
-    public boolean pack(int x, int y, int z){
-        if(isPackable(x, y, z)) return ((Square) get(getLinearIndex(x,y))).setValue(z);
-        else return false;
+    public boolean pack(int x, int y, int z) {
+        //this does not work
+        return isPackable(x, y, z) &&
+                ((Square) get(getLinearIndex(x, y))).setValue(z);
     }
     /**
      *
@@ -92,24 +79,19 @@ public abstract class Grid<S> extends ArrayList<S>{
      */
     protected boolean inset(int x, int y, int z, int sudokuSetSelector){
         S square = get(x,y);
-        List<S> area = null;
+        AbstractSudokuSet<S> area = null;
         int index;
         if(sudokuSetSelector == REGION){
-            area = regions.get(square);
+            area = (AbstractSudokuSet<S>) regions.get(square);
         } else if(sudokuSetSelector == ROW){
-            area = rows.get(square);
+            area = (AbstractSudokuSet<S>) rows.get(square);
         } else if(sudokuSetSelector == COLUMN){
-            area = columns.get(square);
-        }
-        try {
-            throw new Exception(square + "\n"+rows.get(square)+"\n"+columns.get(square)+"\n"+regions.get(square));
-        }catch (Exception e){
-            e.printStackTrace();
+            area = (AbstractSudokuSet<S>) columns.get(square);
         }
         index = getLinearIndex(x, y);
-        Square selected = (Square) ((AbstractSudokuSet<Square>)area).get(x,y);
-        return selected.get() == z;
-
+        S selected = get(index);
+        assert area != null;
+        return area.inset(z);
     }
 
     /**
@@ -118,18 +100,19 @@ public abstract class Grid<S> extends ArrayList<S>{
      * @param y
      * @return : (return/x)-y = size
      */
-    private int getLinearIndex(int x, int y){
-        return x * length + y;
+    public int getLinearIndex(int x, int y){
+        return x* length  + y;
     }
     /**
+     *  0 means empty
      *    Square (x, y, z) isElement grid -> false
      *                          otherwise -> true
      */
     protected boolean isPackable(int x, int y, int z){
-        return inset(x, y, z, Grid.COLUMN)
+        return !inset(x, y, z, Grid.COLUMN)
                 &&checkSpace(x, y)
-                &&inset(x, y, z, Grid.ROW)
-                &&inset(x, y, z, Grid.REGION);
+                &&!inset(x, y, z, Grid.ROW)
+                &&!inset(x, y, z, Grid.REGION);
     }
     /**
      * Compare Square (x,y,z) id to se if it matches a Square (x,y,z) element of gird
@@ -148,5 +131,18 @@ public abstract class Grid<S> extends ArrayList<S>{
     /**
      * Concrete class implements many difficulty levels
      */
-    protected abstract void buildGrid();
+    private void buildGrid()throws Exception{
+        for (int i = 0; i < length(); i++) {
+            for(int j = 0; j < length(); j++){
+                add((S) new Square(i, j,0, Square.READ_WRITE_DELETE));
+            }
+        }
+    }
+    private void buildMaps() throws Exception{
+        factory = new SudokuSetFactory<>(this);
+        rows = factory.getRows();
+        columns = factory.getColumns();
+        regions = factory.getRegions();
+    }
+    protected abstract void fill(int filled) throws Exception;
 }

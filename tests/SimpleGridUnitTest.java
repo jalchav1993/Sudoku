@@ -2,7 +2,6 @@ package edu.utep.cs.cs4330.sudoku.tests;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.model.Grid;
@@ -11,7 +10,6 @@ import edu.utep.cs.cs4330.sudoku.model.Square;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 
 /**
  * @author: Jesus Chavez
@@ -20,9 +18,9 @@ import static junit.framework.Assert.fail;
 
 public class SimpleGridUnitTest {
     @Test
-    public void buildGrid_isCorrect(){
+    public void buildGrid_isCorrect() throws Exception {
         int length = 9;
-        SimpleGrid<Square> grid = new SimpleGrid<Square>(length);
+        SimpleGrid<Square> grid = new SimpleGrid<>(length);
         //do not override length, change this
         assertTrue(grid.size() == length*length);
         assertTrue(grid.length() == length);
@@ -36,7 +34,7 @@ public class SimpleGridUnitTest {
         }
     }
     @Test
-    public void size_IsCorrect(){
+    public void size_IsCorrect() throws Exception {
         int length = 9;
         List grid = new SimpleGrid<Square>(length);
         assertEquals(length, ((Grid) grid).length());

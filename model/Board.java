@@ -9,7 +9,7 @@ public class Board{
     //private final Players p1, p2;
 
     public Grid<Square> grid;
-    public Board(int size){
+    public Board(int size) throws Exception{
         grid = new SimpleGrid<>(size);
     }
 
@@ -20,7 +20,9 @@ public class Board{
     public synchronized String getState(){
         return "";
     }
-
+    public int getGridLength(){
+        return grid.length();
+    }
 
     /**
      * @return  <foreach>

@@ -10,23 +10,15 @@ package edu.utep.cs.cs4330.sudoku.model;
 public class SimpleGrid<S> extends Grid<S> {
     /** Create a new board of the given size. */
     // public SimpleGrid (int size, Player p1, Player p2, NetIntent... )
-    public SimpleGrid(int length) {
+    public SimpleGrid(int length) throws Exception {
         super(length);
     }
 
-    /**
-     * where does documentation go, interface?
-     * Simple and Easy SimpleGrid
-     * @return List l: forevery s in (i,k), l.add(s);
-     */
     @Override
-    protected void buildGrid() {
-        for (int i = 0; i < length(); i++) {
-            for(int j = 0; j < length(); j++){
-                add((S) new Square(i, j,0, Square.READ_WRITE_DELETE));
-            }
-        }
+    protected void fill(int filled) throws Exception {
+
     }
+
 
 }
 

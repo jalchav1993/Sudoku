@@ -1,8 +1,11 @@
 package edu.utep.cs.cs4330.sudoku.select;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * @author: Jesus Chavez
@@ -38,7 +41,7 @@ public class SudokuSetFactory<S> {
      * @throws Exception e logging
      */
     public Map<S, List<S>> getRows() throws Exception {
-        Map<S, List<S>> rows = Collections.synchronizedMap(new HashMap<>());
+        Map<S, List<S>>  rows = Collections.synchronizedMap(new HashMap<>());
         for(S s: grid){
             rows.put(s, new RowSet<>(s, grid));
         }
@@ -49,8 +52,8 @@ public class SudokuSetFactory<S> {
      * @return list of n consecutive items in a region
      * @throws Exception e logging
      */
-    public Map<S, List<S>> getColumns() throws Exception {
-        Map<S, List<S>> cols = Collections.synchronizedMap(new HashMap<>());
+    public Map<S, List<S>>  getColumns() throws Exception {
+        Map<S, List<S>>  cols = Collections.synchronizedMap(new HashMap<>());
         for(S s: grid){
             cols.put(s, new ColumnSet<>(s, grid));
         }

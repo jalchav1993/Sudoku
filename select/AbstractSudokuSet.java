@@ -1,18 +1,22 @@
 package edu.utep.cs.cs4330.sudoku.select;
 
+import junit.framework.Assert;
+
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.model.Grid;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 2/28/18.
  */
-public abstract class AbstractSudokuSet<S> extends ArrayList<S>{
+public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
 
     /**
      * Class constant definitions for coherency
@@ -31,39 +35,34 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S>{
      * @param   key S object for which a set of logically (row, col, region) co
      * @param   parentGridRef Parent set of consecutive Objects S of size n x n
      */
-    public AbstractSudokuSet(S key, List<S> parentGridRef){
+    public AbstractSudokuSet(S key, List<S> parentGridRef) throws Exception {
+        super(parentGridRef.size());
+        int index = 0;
         this.parentGridLength = ((Grid) parentGridRef).length();
-        super.ensureCapacity(parentGridLength);
         this.parentGridRef = parentGridRef;
-        S root = parentGridRef.get(getRootIndex(key, parentGridLength));
+        super.ensureCapacity(parentGridRef.size());
+        index = getRootIndex(key, parentGridLength);
+        S root = parentGridRef.get(index);
         build(root); /* build expects a root not a key */
-    }
-    //needs a get
-    public S get(int x, int y){
-        for (S s: this){
-            if(((Square) s).x == x && ((Square) s).y == y) return s;
-        }
-        return null;
     }
     /**
      * @param   o Some Object
      * @return  s: inset(o) -> true;
      *          otherwise -> false;
      */
-    @Override
-    public boolean contains(Object o){
-        return inset((int) o);
-    }
-
     /**
      * Inner Logic, Implemented by user for especial area row n * 1, column 1 * n,
-     * or region sqrt(n) * sqrt(n).
+     * or region sqrt(n) * sqrt(n). in is a positive word
+     *
      */
-    private boolean inset(int z){
+    public boolean inset(int z){
+        int i = 0;
         for(S compareTo: this){
-            if(compareTo.equals(z)) return false;
+            i++;
+            if(compareTo.equals(z)) return true;
         }
-        return true;
+        assertEquals(parentGridLength, i);
+        return false;
     }
 
     /**
@@ -72,11 +71,11 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S>{
      * with respect to the axis encoding.
      * <driver>AbstractSudokuSet getDeltaVector(axis)</driver>
      */
-    private int updChangeInDelta(int delta, int axis) throws Exception {
+    private int updChangeInDelta(int delta, int i, int axis) throws Exception {
         if(axis == SET_AXIS_X)
-            return updChangeInDx(delta, parentGridLength);
+            return updChangeInDx(delta, i, parentGridLength);
         else if (axis == SET_AXIS_Y)
-            return updChangeInDy(delta, parentGridLength);
+            return updChangeInDy(delta, i, parentGridLength);
         else throw new Exception("wrong selector");
     }
 
@@ -109,15 +108,11 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S>{
      *                           ..,sqrt(n)_sqrt(n)}
      *     where Sum_n_y(colSet).len() == n
      */
-    private List<Integer> getDeltaVector(int axis) {
-        int delta = -1;
+    private List<Integer> getDeltaVector(int axis) throws Exception {
+        int delta = getInitDelta();
         List<Integer> dVector = new ArrayList<>();
         for(int i = 0; i < parentGridLength; i++){
-            try {
-                delta = updChangeInDelta(delta, axis);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            delta = updChangeInDelta(delta, i, axis);
             dVector.add(delta);
         }
         return dVector;
@@ -128,26 +123,28 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S>{
      */
     private void getSConsecutives(S key, List<Integer> dx, List<Integer> dy){
         Square s = (Square) key;
-        int index =(s.x* parentGridLength) + s.y;
+        S next;
+        int index = ((Grid) parentGridRef).getLinearIndex(s.x, s.y);
         super.add(parentGridRef.get(index));
         for (int i = 1; i < parentGridLength; i++){
-            index = ((s.x+ dx.get(i))* parentGridLength)+(s.y+ dy.get(i));//+?
-            super.add(parentGridRef.get(index));
+            index = ((Grid) parentGridRef).getLinearIndex(s.x+dx.get(i),s.y+dy.get(i) );//+?
+            next = parentGridRef.get(index);
+            super.add(next);
         }
     }
-
     /**
      * Builds the java.util.list
      */
-    private void build(S root) {
+    private void build(S root) throws Exception {
         List<Integer> xVector = getDeltaVector(SET_AXIS_X);
         List<Integer> yVector = getDeltaVector(SET_AXIS_Y);
         getSConsecutives(root, xVector, yVector);
     }
 
     public abstract int getRootIndex(S root, int length);   /* Concrete set logic */
-    public abstract int updChangeInDx(int delta, int length);/* Concrete set logic */
-    public abstract int updChangeInDy(int delta, int length);/* Concrete set logic */
+    public abstract int updChangeInDx(int delta, int i, int length);/* Concrete set logic */
+    public abstract int updChangeInDy(int delta, int i, int length);/* Concrete set logic */
+    public abstract int getInitDelta();
     // may be concrete classes should handle more implementation
 }
 class AbstractSudokuSetSquareExeption extends Exception{

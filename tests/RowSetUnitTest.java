@@ -2,10 +2,13 @@ package edu.utep.cs.cs4330.sudoku.tests;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import edu.utep.cs.cs4330.sudoku.model.Grid;
 import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 import edu.utep.cs.cs4330.sudoku.select.RowSet;
+
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -20,14 +23,18 @@ public class RowSetUnitTest {
     private final static int expectedRoot2 = 27;
     private final static int x3 = 2, y3 = 4;
     private final static int expectedRoot3 = 36;
-    private static Grid<Square> grid = new SimpleGrid<>(size);
+    private static Grid<Square> grid;{
+        try{
+            grid = new SimpleGrid<>(size);
+        }catch(Exception e){e.printStackTrace();}
+    };
     @Test
-    public void getRootIndex_isCorrect(){
-        Assert.assertTrue(checkRootIndex(x1,y1, expectedRoot1));
-        Assert.assertTrue(checkRootIndex(x2,y2, expectedRoot2));
-        Assert.assertTrue(checkRootIndex(x3,y3, expectedRoot3));
+    public void getRootIndex_isCorrect() throws Exception {
+        assertTrue(checkRootIndex(x1,y1, expectedRoot1));
+        assertTrue(checkRootIndex(x2,y2, expectedRoot2));
+        assertTrue(checkRootIndex(x3,y3, expectedRoot3));
     }
-    private boolean checkRootIndex(int x, int y, int expected) {
+    private boolean checkRootIndex(int x, int y, int expected) throws Exception {
         Square s = grid.get(x, y);
         int resultIndex;
         RowSet<Square>rowSet = new RowSet<>(s, grid);
@@ -35,13 +42,13 @@ public class RowSetUnitTest {
         return expected == resultIndex;
     }
     @Test
-    public void parentSize_setCorrect(){
+    public void parentSize_setCorrect() throws Exception {
         Grid<Square> grid = new SimpleGrid<>(size);
         Square s = grid.get(x1, y1);
         RowSet<Square> rowSet;
         try {
             rowSet = new RowSet<>(s, grid);
-            Assert.assertTrue(grid.length() == rowSet.size());
+            assertTrue(grid.length() == rowSet.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,41 +56,35 @@ public class RowSetUnitTest {
     }
     @Test
     public void updChangeInDx_isCorrect()throws Exception{
-        Assert.assertTrue(checkDxVector(x1, y1));
-        Assert.assertTrue(checkDxVector(x2, y2));
-        Assert.assertTrue(checkDxVector(x3, y3));
+        assertTrue(checkDxVector(y1, y1));
+        assertTrue(checkDxVector(x2, y2));
+        assertTrue(checkDxVector(x3, y3));
     }
     private boolean checkDxVector(int x, int y) throws Exception{
         Square s = grid.get(x, y);
-        RowSet<Square> rowSet = new RowSet<>(s, grid);
-        int i = 0, l;
-        Square original = rowSet.get(i);
+        List<Square> rowSet = new RowSet<>(s, grid);
+        int i = 0, lastX  = 0;
         for(Square t: rowSet){
-            l = original.x - t.x;
-            if(l != 0 ) return false;
-            throw new Exception(rowSet +"");
+            i+= t.x;
+            lastX = t.x;
         }
-        return true;
+        return i == lastX*size;
     }
     @Test
     public void updChangeInDy_isCorrect() throws Exception {
-        Assert.assertTrue(checkDyVector(x1, y1));
-        Assert.assertTrue(checkDyVector(x2, y2));
-        Assert.assertTrue(checkDyVector(x3, y3));
+        assertTrue(checkDyVector(x1, y1));
+        assertTrue(checkDyVector(x2, y2));
+        assertTrue(checkDyVector(x3, y3));
     }
     private boolean checkDyVector(int x, int y) throws Exception {
+        //1+2+3..+8 = 36
         Square s = grid.get(x, y);
-        RowSet<Square> rowSet = new RowSet<>(s, grid);
-        int i = 0, k;
-        Square original = rowSet.get(i);
-
+        List<Square> rowSet = new RowSet<>(s, grid);
+        int i = 0, index;
+        Square current;
         for(Square t: rowSet){
-            if(i>0){
-                k = t.y- original.y;
-                if(Math.abs(k) != i) return false;
-                i++;
-            }else i++;
+            i+= t.y;
         }
-        return true;
+        return i == 36;
     }
 }

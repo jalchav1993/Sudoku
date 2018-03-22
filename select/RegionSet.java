@@ -23,24 +23,23 @@ public class RegionSet<S> extends AbstractSudokuSet<S>{
     }
 
     @Override
-    public int updChangeInDx(int delta, int length) {
+    public int updChangeInDx(int delta, int i, int length) {
         int sigma = getSigma(length);
-        if(delta % sigma== 0){
-            return delta + 1;
-        } else if(delta % sigma != 0){
-            return 0;
-        } else return delta;
+        return i / sigma;
+
     }
 
     @Override
-    public int updChangeInDy(int delta, int length) {
+    public int updChangeInDy(int delta, int i, int length) {
         int sigma = getSigma(length);
-        if(delta % sigma == 0){
-            return 0;
-        } else if(delta % sigma != 0){
-            return delta + 1;
-        } else return delta;
+        return i % sigma;
     }
+
+    @Override
+    public int getInitDelta() {
+        return 0;
+    }
+
     private int getSigma(int length){
         return (int) Math.sqrt((double) length);
     }

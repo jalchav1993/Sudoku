@@ -13,6 +13,7 @@ import android.view.ViewTreeObserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.utep.cs.cs4330.sudoku.model.Board;
 import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
 
 /**
@@ -41,7 +42,7 @@ public class BoardView extends View {
     private int boardSize = 9;
 
     /** SimpleGrid to be displayed by this view. */
-    private SimpleGrid board;
+    private Board board;
 
     /** Width and height of each square. This is automatically calculated
     /** Width and height of each square. This is automatically calculated
@@ -93,9 +94,9 @@ public class BoardView extends View {
     }
 
     /** Set the board to be displayed by this view. */
-    public void setBoard(SimpleGrid board) {
+    public void setBoard(Board board) {
         this.board = board;
-        boardSize = board.size();
+        boardSize = board.getGridLength();
     }
 
     /** Draw a 2-D graphics representation of the associated board. */

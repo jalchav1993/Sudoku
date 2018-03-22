@@ -47,11 +47,14 @@ public class Square {
     @Override
     public boolean equals(Object o){
         /* casting for polymorphism */
-        return this.value == ((Square) o).get()&&
-                this.x ==((Square) o).x&&
-                this.y ==((Square) o).y;
+        if (o.getClass().equals(Integer.class))
+            return this.value == ((int) o);
+        else
+            return o.getClass() == Square.class &&
+                    this.y == ((Square) o).y &&
+                    this.x == ((Square) o).x &&
+                    this.get() == ((Square) o).get();
     }
-
     /**
      *
      * @return
@@ -70,10 +73,11 @@ public class Square {
      * @return
      */
     public boolean setValue(int value){
-        if(checkPermission(Square.WRITE_N_N)) {
+       // if(checkPermission(Square.WRITE_N_N)) {
             this.value = value;
-            return true;
-        } else return false;
+          //  return true;
+        //} else return false;
+        return true;
     }
 
     /**
@@ -81,16 +85,16 @@ public class Square {
      * @return
      */
     public int get(){
-        if(checkPermission(Square.READ_N_N))
+        //if(checkPermission(Square.READ_N_N))
             return this.value;
-        else return -1;
+        //else return -1;
     }
 
     /**
      *
      */
     public void delete(){
-        if(checkPermission(Square.DELETE_N_N))
+        //if(checkPermission(Square.DELETE_N_N))
             this.value = 0;
     }
     /**
