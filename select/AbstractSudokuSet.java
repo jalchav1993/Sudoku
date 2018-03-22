@@ -147,18 +147,5 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
     public abstract int getInitDelta();
     // may be concrete classes should handle more implementation
 }
-class AbstractSudokuSetSquareExeption extends Exception{
-    private final String status;
-    public AbstractSudokuSetSquareExeption(Square s, int x, int y, List<Integer> dx, List<Integer> dy, int i, int index){
-        status = "i = "+ i+
-                " index "+ index+
-                " x "+s.x+" y "+s.y +
-                " val " + s.get() +
-                " dx "+ dx + " dy "+ dy;
-    }
-    @Override
-    public String toString(){
-        return status;
-    }
-}
+
 //create some helper exceptions for docu

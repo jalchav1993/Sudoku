@@ -125,7 +125,7 @@ public abstract class Grid<S> extends ArrayList<S>{
     /**
      * Checks if a given space is occupied, setValue to 0
      */
-    private boolean checkSpace(int x, int y) {
+    public boolean checkSpace(int x, int y) {
         return compareTo(x, y, 0); /* 0  means not used */
     }
     /**

@@ -1,5 +1,4 @@
 package edu.utep.cs.cs4330.sudoku;
-
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.model.Board;
+import edu.utep.cs.cs4330.sudoku.model.HardGrid;
+import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -52,17 +53,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        try{
-            board = new Board(9);
-        }catch(Exception e){
 
+        try {
+            board = new Board<Square>(9, new HardGrid<>(9, 17));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
         boardView = findViewById(R.id.boardView);
         boardView.setBoard(board);
         boardView.addSelectionListener(this::squareSelected);
         newButton = findViewById(R.id.new_button);
-      //  newButton.setOnClickListener(e -> newClicked(boardView));
+        newButton.setOnClickListener(e -> newClicked(boardView));
         numberButtons = new ArrayList<>(numberIds.length);
         for (int i = 0; i < numberIds.length; i++) {
             final int number = i; // 0 for delete button
@@ -74,32 +75,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /** Callback to be invoked when the new button is tapped. */
-//    public void newClicked(View view) {
-//        toast("New clicked.");
-//        //create thread
-//        //board.create();
-//        new Thread(() -> {
-//            runOnUiThread(()->{
-//                boardView.invalidate(); /* for a new game */
-//            });
-//            //while (board.getStatus().equals("running")) {
-//                Log.d("solving", "solving");
-//                try {
-//                    if(board.solve().equals("won")) {
-//                        runOnUiThread(()->{
-//                            toast("game over: win");
-//                        });
-//                        Thread.sleep(5000);
-//                        //board.create();
-//                        runOnUiThread(()->{
-//                            boardView.postInvalidate();
-//                        });
-//                    }
-//                    Thread.sleep(5);
-//                } catch (InterruptedException e) {}
-//            }
-//        }).start();
-//    }
+    public void newClicked(View view) {
+        toast("New clicked.");
+        //create thread
+        new Thread(() -> {
+            runOnUiThread(()->{
+                boardView.invalidate(); /* for a new game */
+            });
+            while (board.getStatus().equals("running")) {
+                Log.d("solving", "solving");
+                try {
+                    if(!board.getStatus().equals("won")) {
+                        runOnUiThread(()->{
+                            toast("game over: win");
+                        });
+                        Thread.sleep(5000);
+                        board.start();
+                        runOnUiThread(()->{
+                            boardView.postInvalidate();
+                        });
+                    }
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {e.printStackTrace();}
+            }
+        }).start();
+    }
     /** Callback to be invoked when a number button is tapped.
      *
      * @param n Number represented by the tapped button
@@ -113,11 +113,11 @@ public class MainActivity extends AppCompatActivity {
             android.util.Log.d("numberClicked", "incorrect move, null");
         }
         android.util.Log.d("numberClicked", selected[0] +" "+selected[1]);
-       // result = board.put(selected[0],selected[1], n);
-       // out = result ? "correct move": "incorrect move";
+        result = board.put(selected[0],selected[1], n);
+        out = result ? "correct move": "incorrect move";
         runOnUiThread(()->{
             boardView.postInvalidate();
-          //  toast(out);
+            toast(out);
             Log.d("invalidating", "invalidating");
         });
     }
@@ -129,13 +129,13 @@ public class MainActivity extends AppCompatActivity {
      * @param x 0-based row index of the selected square.
      */
     private void squareSelected(int x, int y) {
-        //boolean valid = board.isValidSelect(x,y);
-       // String out = valid ? "correct selection Square selected: (%d, %d)":
-         //       "incorrect selection Square selected: (%d, %d)";
-        //toast(String.format(out, x, y));
-       // if(valid)
-         //   selected = new int[] {x,y};
-        //android.util.Log.d("squareSelected", selected[0] +" "+selected[1]+" "+valid);
+        boolean valid = board.isValidSpace(x,y);
+        String out = valid ? "correct selection Square selected: (%d, %d)":
+                "incorrect selection Square selected: (%d, %d)";
+        toast(String.format(out, x, y));
+        if(valid)
+            selected = new int[] {x,y};
+        android.util.Log.d("squareSelected", selected[0] +" "+selected[1]+" "+valid);
 
     }
 

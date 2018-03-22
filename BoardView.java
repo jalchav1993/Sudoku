@@ -11,17 +11,20 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.SimpleGrid;
+import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * A special view class to display a Sudoku board modeled by the
- * {@link SimpleGrid} class. You need to write code for
+ * {@link edu.utep.cs.cs4330.sudoku.model.Board} class. You need to write code for
  * the <code>onDraw()</code> method.
  *
- * @see SimpleGrid
+ * @see edu.utep.cs.cs4330.sudoku.model.Board
  * @author cheon
  */
 public class BoardView extends View {
@@ -41,21 +44,20 @@ public class BoardView extends View {
     /** Number of squares in rows and columns.*/
     private int boardSize = 9;
 
-    /** SimpleGrid to be displayed by this view. */
-    private Board board;
+    /** Board to be displayed by this view. */
+    private Board<Square> board;
 
-    /** Width and height of each square. This is automatically calculated
     /** Width and height of each square. This is automatically calculated
      * this view's dimension is changed. */
     private float squareSize;
 
-    /** Translation of screen coordinates to display the keySet at the center. */
+    /** Translation of screen coordinates to display the grid at the center. */
     private float transX;
 
-    /** Translation of screen coordinates to display the keySet at the center. */
+    /** Translation of screen coordinates to display the grid at the center. */
     private float transY;
 
-    /** Paint to draw the background of the keySet. */
+    /** Paint to draw the background of the grid. */
     private final Paint boardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     {
         int boardColor = Color.rgb(201, 186, 145);
@@ -94,7 +96,7 @@ public class BoardView extends View {
     }
 
     /** Set the board to be displayed by this view. */
-    public void setBoard(Board board) {
+    public void setBoard(Board<Square> board) {
         this.board = board;
         boardSize = board.getGridLength();
     }
@@ -113,14 +115,39 @@ public class BoardView extends View {
 
     }
 
-    /** Draw horizontal and vertical keySet lines. */
+    /** Draw horizontal and vertical grid lines. */
     private void drawGrid(Canvas canvas) {
-
+        final float maxCoord = maxCoord();
+        final float step = (50/maxCoord)*100;
+        canvas.drawRect(0, 0, maxCoord, maxCoord, boardPaint);
+        Log.d("step", step+"");
+        for(int i  = 0; i < boardSize; i ++){
+            for (int j = 0; j < boardSize; j++){
+                canvas.drawRect(
+                        lineGap() * i + step,
+                        lineGap() * j + step,
+                        lineGap()*(i+1),
+                        lineGap() * (j + 1),
+                        squarePaint);
+            }
+        }
+        //
     }
 
     /** Draw all the squares (numbers) of the associated board. */
     private void drawSquares(Canvas canvas) {
-
+        List<Square> grid = board.getState();
+        for(Square square: grid){
+            int token = square.get();
+            if(token > 0 ){
+                canvas.drawText(
+                        token+" ",
+                        150 * square.x + 65,
+                        150 * square.y + 100,
+                        numberPaint
+                );
+            }
+        }
     }
 
     /** Overridden here to detect tapping on the board and
@@ -213,3 +240,4 @@ public class BoardView extends View {
     }
 
 }
+
