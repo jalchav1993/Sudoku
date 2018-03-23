@@ -1,6 +1,6 @@
 package edu.utep.cs.cs4330.sudoku;
 
-import edu.utep.cs.cs4330.sudoku.model.*;
+import edu.utep.cs.cs4330.sudoku.model.Board;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 3/4/18.

@@ -1,9 +1,11 @@
 package edu.utep.cs.cs4330.sudoku.model;
+
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import edu.utep.cs.cs4330.sudoku.select.*;
+
+import edu.utep.cs.cs4330.sudoku.select.AbstractSudokuSet;
+import edu.utep.cs.cs4330.sudoku.select.SudokuSetFactory;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 3/5/18.

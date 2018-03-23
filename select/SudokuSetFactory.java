@@ -1,11 +1,9 @@
 package edu.utep.cs.cs4330.sudoku.select;
+
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import edu.utep.cs.cs4330.sudoku.model.Square;
 
 /**
  * @author: Jesus Chavez

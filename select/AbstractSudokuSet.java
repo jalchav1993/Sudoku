@@ -1,16 +1,12 @@
 package edu.utep.cs.cs4330.sudoku.select;
 
-import junit.framework.Assert;
-
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.model.Grid;
 import edu.utep.cs.cs4330.sudoku.model.Square;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 
 /**
  * @author: Jesus Chavez
