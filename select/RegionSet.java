@@ -19,7 +19,14 @@ public class RegionSet<S> extends AbstractSudokuSet<S>{
     public int getRootIndex(S root, int length) {
         Square s = (Square) root;
         int sigma = getSigma(length);
-        return(s.x - s.x % sigma)+(  (s.y- s.y % sigma)* length);
+        return(s.x - s.x % sigma)+(  (s.y - (s.y % sigma))* length);
+    }
+
+    @Override
+    public int updChangeInDy(int delta, int i, int length) {
+        int sigma = getSigma(length);
+        return i % sigma;
+
     }
 
     @Override
@@ -27,12 +34,6 @@ public class RegionSet<S> extends AbstractSudokuSet<S>{
         int sigma = getSigma(length);
         return i / sigma;
 
-    }
-
-    @Override
-    public int updChangeInDy(int delta, int i, int length) {
-        int sigma = getSigma(length);
-        return i % sigma;
     }
 
     @Override

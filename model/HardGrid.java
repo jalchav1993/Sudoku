@@ -11,11 +11,12 @@ public class HardGrid<S> extends Grid<S> {
 
     @Override
     protected void fill(int filled) throws Exception{
-        int k = 1, x, y;
+        int k = 1, x, y, z;
         while(k<=filled){
             x = (int) (Math.random() * 8);
             y = (int) (Math.random() * 8);
-            if(super.pack(x, y, k)) k++;
+            z = (int) (Math.random() * 8);
+            if(super.pack(x, y, z)) k++;
         }
     }
 

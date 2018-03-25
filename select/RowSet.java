@@ -14,20 +14,20 @@ public class RowSet<S> extends AbstractSudokuSet<S>{
     public RowSet(S key, List<S> keySet) throws Exception {
         super(key, keySet);
     }
-
+    // good use of abstraction, localized the problem, changed from y to x
     @Override
     public int getRootIndex(Object root, int length) {
         return ((Square)root).y*length;
     }
 
     @Override
-    public int updChangeInDx(int delta, int i, int length) {
+    public int updChangeInDy(int delta, int i, int length) {
         return 0;
     }
 
     @Override
-    public int updChangeInDy(int delta, int i, int length) {
-        return delta + 1;
+    public int updChangeInDx(int delta, int i, int length) {
+        return delta+1;
     }
 
     @Override

@@ -17,16 +17,16 @@ public class ColumnSet<S> extends AbstractSudokuSet<S> {
 
     @Override
     public int getRootIndex(Object root, int length) {
-        return ((Square)root).y;
-    }
-
-    @Override
-    public int updChangeInDx(int delta, int i, int length) {
-        return delta +1;
+        return ((Square)root).x;
     }
 
     @Override
     public int updChangeInDy(int delta, int i, int length) {
+        return delta +1;
+    }
+
+    @Override
+    public int updChangeInDx(int delta, int i, int length) {
         return 0;
     }
 

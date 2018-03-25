@@ -3,6 +3,7 @@ package edu.utep.cs.cs4330.sudoku.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import edu.utep.cs.cs4330.sudoku.select.AbstractSudokuSet;
 import edu.utep.cs.cs4330.sudoku.select.SudokuSetFactory;
@@ -90,8 +91,6 @@ public abstract class Grid<S> extends ArrayList<S>{
         } else if(sudokuSetSelector == COLUMN){
             area = (AbstractSudokuSet<S>) columns.get(square);
         }
-        index = getLinearIndex(x, y);
-        S selected = get(index);
         assert area != null;
         return area.inset(z);
     }
@@ -103,7 +102,7 @@ public abstract class Grid<S> extends ArrayList<S>{
      * @return : (return/x)-y = size
      */
     public int getLinearIndex(int x, int y){
-        return x* length  + y;
+        return x + (y* length) ;
     }
     /**
      *  0 means empty
@@ -136,7 +135,7 @@ public abstract class Grid<S> extends ArrayList<S>{
     private void buildGrid()throws Exception{
         for (int i = 0; i < length(); i++) {
             for(int j = 0; j < length(); j++){
-                add((S) new Square(i, j,0, Square.READ_WRITE_DELETE));
+                add((S) new Square(j, i,0, Square.READ_WRITE_DELETE));
             }
         }
     }

@@ -123,7 +123,7 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
         int index = ((Grid) parentGridRef).getLinearIndex(s.x, s.y);
         super.add(parentGridRef.get(index));
         for (int i = 1; i < parentGridLength; i++){
-            index = ((Grid) parentGridRef).getLinearIndex(s.x+dx.get(i),s.y+dy.get(i) );//+?
+            index = ((Grid) parentGridRef).getLinearIndex(s.x+dx.get(i),s.y+dy.get(i) );//+?,
             next = parentGridRef.get(index);
             super.add(next);
         }
@@ -132,14 +132,14 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
      * Builds the java.util.list
      */
     private void build(S root) throws Exception {
-        List<Integer> xVector = getDeltaVector(SET_AXIS_X);
         List<Integer> yVector = getDeltaVector(SET_AXIS_Y);
-        getSConsecutives(root, xVector, yVector);
+        List<Integer> xVector = getDeltaVector(SET_AXIS_X);
+        getSConsecutives(root, xVector,yVector);
     }
 
     public abstract int getRootIndex(S root, int length);   /* Concrete set logic */
-    public abstract int updChangeInDx(int delta, int i, int length);/* Concrete set logic */
     public abstract int updChangeInDy(int delta, int i, int length);/* Concrete set logic */
+    public abstract int updChangeInDx(int delta, int i, int length);/* Concrete set logic */
     public abstract int getInitDelta();
     // may be concrete classes should handle more implementation
 }

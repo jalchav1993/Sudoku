@@ -11,10 +11,10 @@ public class Board<S>{
     /* inner class variables */
     //private final Players p1, p2;
 
-    public Grid<S> grid;
+    public List<S> grid;
     public String status;
     public Board(int size, List<S> grid) throws Exception{
-        this.grid = (Grid<S>) grid;
+        this.grid = grid;
         status = "";
     }
     public synchronized String getStatus(){
@@ -34,7 +34,7 @@ public class Board<S>{
         return grid;
     }
     public int getGridLength(){
-        return grid.length();
+        return ((Grid) grid).length();
     }
 
     /**
@@ -54,12 +54,12 @@ public class Board<S>{
     }
     public List<S> solve(){
         int k = 1, x, y, z;
-        while(k<=grid.size()){
+        while(k<=((Grid) grid).size()){
             //get values not within rows
             x = (int) (Math.random() * 8);
             y = (int) (Math.random() * 8);
             z = (int) (Math.random() * 8 + 1);
-            if(grid.pack(x, y, z)) k++;
+            if(((Grid) grid).pack(x, y, z)) k++;
         }
         return getState();
     }
@@ -72,9 +72,9 @@ public class Board<S>{
      *          otherwise -> false
      */
     public boolean put(int x, int y, int z) {
-        return grid.pack(x, y, z);
+        return ((Grid) grid).pack(x, y, z);
     }
     public boolean isValidSpace(int x, int y){
-        return grid.checkSpace(x,y);
+        return ((Grid) grid).checkSpace(x,y);
     }
 }

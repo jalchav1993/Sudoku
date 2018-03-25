@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import edu.utep.cs.cs4330.sudoku.BoardView;
+import edu.utep.cs.cs4330.BoardView;
 import edu.utep.cs.cs4330.sudoku.model.Board;
 import edu.utep.cs.cs4330.sudoku.model.HardGrid;
 import edu.utep.cs.cs4330.sudoku.model.Square;
