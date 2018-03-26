@@ -2,6 +2,9 @@ package edu.utep.cs.cs4330.sudoku.model;
 
 import java.util.List;
 
+import edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid;
+import edu.utep.cs.cs4330.sudoku.model.utility.grid.Square;
+
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 2/28/18.
@@ -30,13 +33,9 @@ public class Board<S>{
      * @return  string representation of the board such that
      *          every char element of string is a square;
      */
-    public synchronized List<S> getState(){
+    public synchronized List<S> getGrid(){
         return grid;
     }
-    public int getGridLength(){
-        return ((Grid) grid).length();
-    }
-
     /**
      * @return  <foreach>
      *              <Square s elementOf="grid">
@@ -46,7 +45,7 @@ public class Board<S>{
      *          otherwise -> true
      */
     public boolean check(){
-        for(S s: grid) if(!((Square) s).hasValue(0)){
+        for(S s: grid) if(!((Square) s).contains(0)){
             return false;
         }
         setStatus("won");
@@ -61,7 +60,7 @@ public class Board<S>{
             z = (int) (Math.random() * 8 + 1);
             if(((Grid) grid).pack(x, y, z)) k++;
         }
-        return getState();
+        return getGrid();
     }
     /** Add a new number to grid
      * @see     Board isPackable(x,y,z)
@@ -74,7 +73,5 @@ public class Board<S>{
     public boolean put(int x, int y, int z) {
         return ((Grid) grid).pack(x, y, z);
     }
-    public boolean isValidSpace(int x, int y){
-        return ((Grid) grid).checkSpace(x,y);
-    }
+
 }

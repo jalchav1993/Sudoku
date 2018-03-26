@@ -1,10 +1,10 @@
-package edu.utep.cs.cs4330.sudoku.select;
+package edu.utep.cs.cs4330.sudoku.model.utility.select;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.utep.cs.cs4330.sudoku.model.Grid;
-import edu.utep.cs.cs4330.sudoku.model.Square;
+import edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid;
+import edu.utep.cs.cs4330.sudoku.model.utility.grid.Square;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -54,10 +54,10 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
     public boolean inset(int z){
         int i = 0;
         for(S compareTo: this){
+            if(((Square) compareTo).get() == z) return true;
             i++;
-            if(compareTo.equals(z)) return true;
         }
-        assertEquals(parentGridLength, i);
+        //assertEquals(parentGridLength, i);
         return false;
     }
 

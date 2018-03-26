@@ -1,4 +1,4 @@
-package edu.utep.cs.cs4330.sudoku.select;
+package edu.utep.cs.cs4330.sudoku.model.utility.select;
 
 import java.util.Collections;
 import java.util.HashMap;
