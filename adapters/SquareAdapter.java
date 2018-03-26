@@ -23,11 +23,11 @@ public class SquareAdapter extends BaseAdapter {
     private List<Square> grid;
     public SquareAdapter(Context c) {
         mContext = c;
-        grid = ((MainActivity) mContext).getGrid();
+        //grid = ((MainActivity) mContext).getGrid();
     }
 
     public int getCount() {
-        return grid.size();
+        return 9;
     }
 
     public Object getItem(int position) {

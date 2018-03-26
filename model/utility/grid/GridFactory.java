@@ -32,14 +32,14 @@ public class GridFactory {
     private final static Tuple GRID_MEDIUM_FOUR = new Tuple(DIFFICULTY_MEDIUM, REGION_FOUR_BY_FOUR);
     private final static Tuple GRID_HARD_THREE = new Tuple(DIFFICULTY_HARD, REGION_THREE_BY_THREE);
     private final static Tuple GRID_HARD_FOUR = new Tuple(DIFFICULTY_HARD, REGION_FOUR_BY_FOUR);
-    private final Map<Tuple, List<Square>> GRID_COMBINATIONS = Collections.synchronizedMap(new HashMap<>());{
+    private final static Map<Tuple, List<Square>> GRID_COMBINATIONS = Collections.synchronizedMap(new HashMap<>());{
         try {
             GRID_COMBINATIONS.put(GRID_EASY_THREE, new SimpleGrid<>(GRID_EASY_THREE.len()));
             GRID_COMBINATIONS.put(GRID_EASY_FOUR, new SimpleGrid<>(GRID_EASY_FOUR.len()));
-            GRID_COMBINATIONS.put(GRID_EASY_THREE, new NormalGrid(GRID_MEDIUM_THREE.len()));
-            GRID_COMBINATIONS.put(GRID_EASY_FOUR, new NormalGrid(GRID_MEDIUM_FOUR.len()));
-            GRID_COMBINATIONS.put(GRID_EASY_THREE, new HardGrid<>(GRID_EASY_THREE.len()));
-            GRID_COMBINATIONS.put(GRID_EASY_FOUR, new HardGrid<>(GRID_EASY_FOUR.len()));
+            GRID_COMBINATIONS.put(GRID_MEDIUM_THREE, new NormalGrid(GRID_MEDIUM_THREE.len()));
+            GRID_COMBINATIONS.put(GRID_MEDIUM_FOUR, new NormalGrid(GRID_MEDIUM_FOUR.len()));
+            GRID_COMBINATIONS.put(GRID_HARD_THREE, new HardGrid<>(GRID_EASY_THREE.len()));
+            GRID_COMBINATIONS.put(GRID_HARD_FOUR, new HardGrid<>(GRID_EASY_FOUR.len()));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,26 +1,22 @@
 package edu.utep.cs.cs4330.sudoku;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.Toast;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.adapters.SquareAdapter;
 import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.HardGrid;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.SimpleGrid;
 import edu.utep.cs.cs4330.sudoku.model.utility.grid.Square;
+
 
 /**
  * HW1 template for developing an app to play simple Sudoku games.
@@ -55,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     GridView gridView;
     private List<View> squareView;
     /**/
-    private Menu menu;
     /** All the number buttons. */
     private List<View> numberButtons;
     /* ids*/
@@ -72,11 +67,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            //board = new Board<>();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         setContentView(R.layout.activity_main);
         GridView gridView = (GridView) findViewById(R.id.gridView);
         SquareAdapter adapter = new SquareAdapter(this);
@@ -96,12 +86,35 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.main,menu);
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.action_new: create();
+            case R.id.action_size: restart();
+            case R.id.action_solve: solve();
+            case R.id.action_hint: hint();
+        }
+        return super.onOptionsItemSelected(item);
+    }
     /** Callback to be invoked when a number button is tapped.
      *
      * @param n Number represented by the tapped button
      *          or 0 for the delete button.
      */
     public void numberClicked(int n) {
+
+    }
+    private void create(){
+        startActivity(new Intent("edu.utep.cs.cs4330.sudoku.SetupActivity"));
+    }
+    private void restart(){
+
+    }
+    private void solve(){
+
+    }
+    private void hint(){
 
     }
 
