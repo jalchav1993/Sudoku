@@ -38,7 +38,7 @@ public class SquareView extends View {
 
     /** SimpleGrid to be displayed by this view. */
     private Square square;
-
+    private boolean selected = false;
     /** Width and height of each square. This is automatically calculated
      /** Width and height of each square. This is automatically calculated
      * this view's dimension is changed. */
@@ -51,11 +51,11 @@ public class SquareView extends View {
     private float transY;
 
     /** Paint to draw the background of the keySet. */
-    private final Paint boardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     {
-        int boardColor = Color.rgb(201, 186, 145);
-        boardPaint.setColor(boardColor);
-        boardPaint.setAlpha(80); // semi transparent
+        int boardColor = Color.rgb(255, 0, 0);
+        selectedPaint.setColor(boardColor);
+        selectedPaint.setAlpha(80); // semi transparent
     }
     /** Paint to draw the numbers **/
     private final Paint numberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -70,6 +70,7 @@ public class SquareView extends View {
         int squareColor = Color.rgb(201, 186, 145);
         squarePaint.setColor(squareColor);
     }
+    private Paint currentPaint;
     /** Create a new square view to be run in the given context. */
     public SquareView(Context context) { //@cons
         this(context, null);
@@ -86,6 +87,7 @@ public class SquareView extends View {
         super(context, attrs, defStyleAttr);
         setSaveEnabled(true);
         getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+        currentPaint = squarePaint;
     }
 
     /** Set the square to be displayed by this view. */
@@ -107,7 +109,10 @@ public class SquareView extends View {
     private void drawSquare(Canvas canvas) {
         final float maxCoord = maxCoord();
         canvas.translate(transX, transY);
-        canvas.drawRect(0, 0, maxCoord, maxCoord, boardPaint);
+        if(square.isSelected()) currentPaint = selectedPaint;
+        else currentPaint = squarePaint;
+        canvas.drawRect(0, 0, maxCoord, maxCoord, currentPaint);
+        canvas.drawText(square.get()+"", maxCoord/2, maxCoord/2, numberPaint);
         canvas.translate(-transX, -transY);
     }
     /** Return the number of horizontal/vertical lines. */
@@ -128,13 +133,26 @@ public class SquareView extends View {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_MOVE:
                 break;
-            case MotionEvent.ACTION_UP:
-                //should select this view and paint it another color
-                break;
+            case MotionEvent.ACTION_UP:{
+               if (!square.isSelected()) select();
+               else deselect();
+            } break;
             case MotionEvent.ACTION_CANCEL:
                 break;
         }
         return true;
+    }
+    public void select(){
+        square.select();
+        //currentPaint = selectedPaint;
+        //square.select();
+        invalidate();
+    }
+    public void deselect(){
+        square.deselect();
+        //currentPaint = squarePaint;
+        //square.deselect();
+        invalidate();
     }
     @Override
     public boolean performClick(){
@@ -156,7 +174,21 @@ public class SquareView extends View {
     protected float lineGap() {
         return Math.min(getMeasuredWidth(), getMeasuredHeight());
     }
-
+    public void setSelectionListener(SelectionListener listener){
+        this.listener = listener;
+    }
+    public void removeSelectionListener() {
+        this.listener = null;
+    }
+    private void notifySelection(int z) {
+        listener.onSelection(z);
+    }
+    public boolean isSelected(){
+        return selected;
+    }
+    public Square getSquare(){
+        return square;
+    }
 }
 
 

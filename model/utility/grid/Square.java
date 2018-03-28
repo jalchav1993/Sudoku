@@ -74,9 +74,10 @@ public class Square {
         return this.value == value;
     }
     public boolean select(){
-        if(value == 0)
-            return selected = true;
-        else return selected = false;
+        return selected = true;
+    }
+    public boolean deselect(){
+        return selected = false;
     }
 
     /**
