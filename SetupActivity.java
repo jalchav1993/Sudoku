@@ -11,7 +11,6 @@ import java.util.List;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.net.Uri;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -20,9 +19,7 @@ import android.widget.ExpandableListAdapter;
 import android.widget.TextView;
 import android.content.Intent;
 import android.widget.Toast;
-import android.widget.Toolbar;
-
-import edu.utep.cs.cs4330.sudoku.adapters.OptionsExpandableListAdapter;
+import edu.utep.cs.cs4330.sudoku.adapter.OptionsExpandableListAdapter;
 
 public class SetupActivity extends AppCompatActivity {
     ExpandableListView optionsListView;
@@ -35,7 +32,7 @@ public class SetupActivity extends AppCompatActivity {
     private final static String list_difficulty_medium= "Medium";
     private final static String list_difficulty_hard = "Hard";
     private final static String list_size_four="4 X 4";
-    private final static String list_size_three = "3 X 3";
+    private final static String list_size_nine = "9 X 9";
     private TextView difficulty, size;
     private Button start;
     private ActionBar actionBar;
@@ -106,19 +103,19 @@ public class SetupActivity extends AppCompatActivity {
                 //hate cases
                 Intent result = new Intent();
                 if(difficulty.getText().equals(list_difficulty_easy)){
-                    if(size.getText().equals(list_size_three)){
+                    if(size.getText().equals(list_size_nine)){
                         result.putExtra("setup", MainActivity.EASY_REGION_THREE);
                     }else if(size.getText().equals(list_size_four)){
                         result.putExtra("setup",MainActivity.EASY_REGION_FOUR);
                     }
                 }else if(difficulty.getText().equals(list_difficulty_medium)){
-                    if(size.getText().equals(list_size_three)){
+                    if(size.getText().equals(list_size_nine)){
                         result.putExtra("setup",MainActivity.EASY_REGION_THREE);
                     }else if(size.getText().equals(list_size_four)){
                         result.putExtra("setup",MainActivity.EASY_REGION_FOUR);
                     }
                 } else if(difficulty.getText().equals(list_difficulty_hard)){
-                    if(size.getText().equals(list_size_three)){
+                    if(size.getText().equals(list_size_nine)){
                         result.putExtra("setup",MainActivity.HARD_REGION_THREE);
                     }else if(size.getText().equals(list_size_four)){
                         result.putExtra("setup",MainActivity.HARD_REGION_FOUR);
@@ -133,6 +130,7 @@ public class SetupActivity extends AppCompatActivity {
     }
     @Override
     public boolean onNavigateUp(){
+        //is this necessary?
         finish();
         return super.onNavigateUp();
     }
@@ -143,7 +141,7 @@ public class SetupActivity extends AppCompatActivity {
         difficulties.add(list_difficulty_medium);
         difficulties.add(list_difficulty_hard);
         List<String> sizes = new ArrayList<String>();
-        sizes.add(list_size_three);
+        sizes.add(list_size_nine);
         sizes.add(list_size_four);
         expandableListDetail.put(difficulty_list_title, difficulties);
         expandableListDetail.put(size_list_title, sizes);

@@ -60,7 +60,13 @@ public abstract class AbstractSudokuSet<S> extends ArrayList<S> {
         //assertEquals(parentGridLength, i);
         return false;
     }
-
+    public List<Boolean> available(){
+        List<Boolean> available = new ArrayList<>(parentGridLength);
+        for(S s: this){
+            available.add(((Square) s).get() == 0);
+        }
+        return available;
+    }
     /**
      * This method is a driver for getDeltaVector(axis) Per UML design, this class is extended by
      * RowSet, ColumnSet, RegionSet. for row setValue, the goal is to generate changes in delta

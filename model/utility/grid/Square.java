@@ -17,16 +17,27 @@ public class Square {
     public final int x;
     public final int y;
     private boolean selected;
+    private boolean isEnabled;
     private int value;
 
-
+    public static final int EMPTY = 0;
     public Square(int x, int y, int parentCapacity, boolean slected){
         this.x = x;
         this.y = y;
         this.selected = slected;
+        isEnabled = false;
         value = 0;
     }
-
+    public void enable(){
+        //for game initialization
+        if(!isEnabled) isEnabled = true;
+    }
+    public void disable(){
+        if(!isEnabled) isEnabled = false;
+    }
+    public boolean isEnabled(){
+        return isEnabled;
+    }
     /**
      *
      * @param o

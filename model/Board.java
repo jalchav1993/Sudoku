@@ -1,5 +1,7 @@
 package edu.utep.cs.cs4330.sudoku.model;
 
+import android.util.Log;
+
 import java.util.List;
 
 import edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid;
@@ -15,18 +17,23 @@ public class Board<S>{
     //private final Players p1, p2;
 
     public List<S> grid;
-    public String status;
+    private String status;
+    public static final String RUNNING_ = "r";
+    public static final String N_RUNNING = "nr";
+
     public Board(int size, List<S> grid) throws Exception{
         this.grid = grid;
-        status = "";
+        status = Board.N_RUNNING;
     }
-    public synchronized String getStatus(){
+    //synchronized when multi threads
+    public String getStatus(){
         return status;
     }
-    public synchronized void start(){
-        status = "running";
+    public void start() throws Exception {
+        Log.d("start", "start");
+        status = Board.RUNNING_;
     }
-    public void setStatus(String status){
+    private void setStatus(String status){
         this.status = status;
     }
     /**
@@ -44,24 +51,17 @@ public class Board<S>{
      *          </foreach>
      *          otherwise -> true
      */
-    public boolean check(){
-        for(S s: grid) if(!((Square) s).contains(0)){
+    public boolean check(List<S> l){
+        for(S s: l) if(((Square) s).contains(0)){
             return false;
         }
-        setStatus("won");
+        setStatus(Board.N_RUNNING);
         return true;
     }
-    public List<S> solve(){
-        int k = 1, x, y, z;
-        while(k<=((Grid) grid).size()){
-            //get values not within rows
-            x = (int) (Math.random() * 8);
-            y = (int) (Math.random() * 8);
-            z = (int) (Math.random() * 8 + 1);
-            if(((Grid) grid).pack(x, y, z)) k++;
-        }
-        return getGrid();
+    public boolean check(){
+        return check(grid);
     }
+
     /** Add a new number to grid
      * @see     Board isPackable(x,y,z)
      * @param   x coordinate for columns
@@ -74,4 +74,7 @@ public class Board<S>{
         return ((Grid) grid).pack(x, y, z);
     }
 
+    public void deselectAll() {
+
+    }
 }

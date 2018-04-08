@@ -12,21 +12,10 @@ import android.view.Menu;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.MenuItem;
 import android.widget.GridLayout;
-import android.widget.GridLayout.LayoutParams;
 import android.widget.FrameLayout;
 
-import android.view.Gravity;
-import android.view.Menu;
-import android.widget.GridView;
-import android.widget.Toast;
-import android.net.Uri;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import edu.utep.cs.cs4330.sudoku.adapters.SquareAdapter;
 import edu.utep.cs.cs4330.sudoku.model.Board;
 import edu.utep.cs.cs4330.sudoku.model.utility.grid.HardGrid;
 import edu.utep.cs.cs4330.sudoku.model.utility.grid.NormalGrid;
@@ -73,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
        // grids.put(new HardGrid(REGION_FOUR));
    // }
     GridLayout gridLayout;
+    SquareView head, tail;
     int h, w;
     private List<View> squareView;
     /**/
@@ -112,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
             numberButtons.add(button);
             setButtonWidth(button);
         }
-        Log.d("please", w+" "+h);
     }
 
     @Override
@@ -126,11 +115,21 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.action_new: create(); break;
-            case R.id.action_size: restart(); break;
+            case R.id.action_p2p: createP2Pwifi(); break;
             case R.id.action_solve: solve(); break;
             case R.id.action_hint: hint(); break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    private void createP2PblueToth(){
+
+    }
+    private void createP2PwifiDirect(){
+
+    }
+    private void createP2Pwifi() {
+        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.JoinActivity");
+        startActivityForResult(intent, 2);
     }
     /** Callback to be invoked when a number button is tapped.
      *
@@ -138,8 +137,27 @@ public class MainActivity extends AppCompatActivity {
      *          or 0 for the delete button.
      */
     public void numberClicked(int n) {
-        selected = n;
-        board.put(current.x, current.y, n);
+        int number = n, x, y;
+        Square select = null;
+        // here you get the current selected square view
+        for(Square s: board.grid){
+            if(s.isSelected()){
+                select = s;
+                break;
+            }
+        }
+        if(select != null){
+            x = select.x;
+            y =select.y;
+            board.put(x, y, n);
+            Log.d("selected ok", select.toString());
+        }
+        SquareView current = head.next();
+        while(current!= null){
+            current.invalidate();
+            current = current.next();
+        }
+        gridLayout.invalidate();
     }
     private void create(){
         Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.SetupActivity");
@@ -149,10 +167,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent result) {
         Bundle bundle;
         String selected = "";
-
         if (requestCode == 1 && resultCode == RESULT_OK) {
             bundle = result.getExtras();
-            android.util.Log.d("please work", bundle.getString("setup")) ;
+            assert bundle != null;
             selected = bundle.getString("setup");
             initVars(selected);
             start();
@@ -167,20 +184,20 @@ public class MainActivity extends AppCompatActivity {
                 board = new Board<>(9, new SimpleGrid<>(9));
                 c = r= 9;
             } else if (selector.equals(EASY_REGION_FOUR)) {
-                board = new Board<>(16, new SimpleGrid<>(16));
-                c = r= 16;
+                board = new Board<>(4, new SimpleGrid<>(4));
+                c = r= 4;
             } else if (selector.equals(MEDIUM_REGION_THREE)) {
                 board = new Board<>(9, new SimpleGrid<>(9));
                 c = r= 9;
             } else if (selector.equals(MEDIUM_REGION_FOUR)) {
-                board = new Board<>(16, new SimpleGrid<>(16));
-                c = r= 16;
+                board = new Board<>(4, new SimpleGrid<>(4));
+                c = r= 4;
             } else if (selector.equals(HARD_REGION_THREE)) {
                 board = new Board<>(9, new HardGrid<>(9));
                 c = r= 9;
             } else if (selector.equals(HARD_REGION_FOUR)) {
-                board = new Board<>(16, new HardGrid<>(16));
-                c = r= 16;
+                board = new Board<>(4, new HardGrid<>(4));
+                c = r= 4;
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -188,71 +205,90 @@ public class MainActivity extends AppCompatActivity {
         gridLayout.removeAllViews();
         gridLayout.setColumnCount(c);
         gridLayout.setRowCount(r);
-        android.util.Log.d("please work", selector);
-        for(Square s: board.grid){
-            Button button = new Button(this);
-            SquareView squareView = new SquareView(this);
-            squareView.setSquare(s);
-            squareView.setSelectionListener(this::squareSelected);
-            index = ((Grid )board.grid).getLinearIndex(s.x, s.y);
+        head = new SquareView(this);
+        tail = new SquareView(this);
+        SquareView next = new SquareView(this);
+        head.setSquare(board.grid.get(0));
+        tail.setSquare(board.grid.get(((Grid) board.grid).length() - 1));
+        head.link(head, next, tail);
+        tail.link(head, next, tail);
+        int sigma = ((Grid) board.grid).length();
+        sigma = (int) Math.sqrt(sigma);
+        for(int i = 0; i < board.grid.size(); i++){
+            Square current = board.grid.get(i);
+            next.setSquare(current);
+            next.setSigma(sigma);
+            next.link(head, new SquareView(this), tail);
+            index = ((Grid )board.grid).getLinearIndex(current.x, current.y);
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout
                     .LayoutParams.MATCH_PARENT);
             params.rightMargin = 7;
             params.topMargin = 7;
             params.height = w/c;
             params.width = w/c;
-            squareView.setLayoutParams(params);
-            gridLayout.addView(squareView, index);
-            squareView.invalidate();
+            next.setLayoutParams(params);
+            gridLayout.addView(next, index);
+            next.invalidate();
+            next = next.next();
         }
         gridLayout.invalidate();
+        try {
+            board.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
-    private void squareSelected(int i) {
-        Log.d(i+"sdf", i+"dsd");
-    }
-
     private void start(){
-        Thread t = new Thread (){
+        new Thread(){
             public void run(){
-                while(true){
+                while(board.getStatus().equals(Board.RUNNING_)){
+                    Square select = null;
+                    List<Boolean> available = null;
+                    int i =0;
+                    // here you get the current selected square view
                     for(Square s: board.grid){
-                        if(s.isSelected() && !madeSelection){
-                            current = s;
-                            madeSelection = true;
-                        }
-                        if(s.isSelected() && !current.equals(s) && madeSelection){
-                            current.deselect();
-                            current = s;
-                            current.select();
-                            madeSelection = false;
+                        if(s.isSelected()){
+                            select = s;
+                            break;
                         }
                     }
-                    runOnUiThread(()->{
-                        for(int i = 0; i < gridLayout.getChildCount(); i++){
-                            gridLayout.getChildAt(i).invalidate();
+                    if(select != null){
+                        available= ((Grid<Square>)board.grid).getAvailable(select);
+                        Log.d("avail, ", available.toString());
+                        for(View button: numberButtons){
+                            i = numberButtons.indexOf(button);
+                            if(i > 0){
+                                final int visibility = available.get(i)? View.VISIBLE:View.INVISIBLE;
+                                runOnUiThread(()->{
+                                    button.setVisibility(visibility);
+                                    button.invalidate();
+                                });
+                                Log.d("avail, ", visibility+"");
+                            }
                         }
-                    });
-                    try {
+                        List<List<Square>> shadowSet = ((Grid<Square>)board.grid).getShadowSet(select);
+                        Square finalSelect = select;
+                        runOnUiThread(()->{
+                            final Square s = finalSelect;
+                            head.unShadowAll(shadowSet.get(0), shadowSet.get(1), shadowSet.get(2), finalSelect);
+                        });
+                    }
+                    try{
                         sleep(10);
-                    } catch (InterruptedException e) {
+                    }catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-
             }
-        };
-        t.start();
-    }
-    private void restart(){
-
+        }.start();
     }
     private void solve(){
-
+        
     }
     private void hint(){
-
+        
     }
+
     /** Set the width of the given button calculated from the screen size. */
     private void setButtonWidth(View view) {
         if (buttonWidth == 0) {
@@ -264,4 +300,5 @@ public class MainActivity extends AppCompatActivity {
         params.width = buttonWidth;
         view.setLayoutParams(params);
     }
+   
 }

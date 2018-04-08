@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import edu.utep.cs.cs4330.sudoku.model.Board;
 import edu.utep.cs.cs4330.sudoku.model.utility.select.AbstractSudokuSet;
 import edu.utep.cs.cs4330.sudoku.model.utility.select.SudokuSetFactory;
 /**
@@ -32,8 +33,36 @@ public abstract class Grid<S> extends ArrayList<S> {
         super.ensureCapacity(capacity);
         buildGrid();
         buildMaps();
-        fill();
-
+    }
+    public List<Boolean> getAvailable(S selected){
+        List<Boolean> l = new ArrayList<>();
+        for(int i =0; i <=length(); i++){
+            l.add(true);
+        }
+        List<S> region = regions.get(selected);
+        List<S> row = rows.get(selected);
+        List<S> col = columns.get(selected);
+        for(S s: region){
+            l.set(((Square) s).get(), false);
+        }
+        for(S s: row){
+            l.set(((Square) s).get(), false);
+        }
+        for(S s: col){
+            l.set(((Square) s).get(), false);
+        }
+        return l;
+    }
+    public List<List<S>> getShadowSet(S selected){
+        List<S> region = regions.get(selected);
+        List<S> row = rows.get(selected);
+        List<S> col = columns.get(selected);
+        List<List<S>> shadowSet = new ArrayList<>(3);{
+            shadowSet.add(region);
+            shadowSet.add(row);
+            shadowSet.add(col);
+        }
+        return shadowSet;
     }
     public int length() {
         return GRID_LENGTH;
@@ -56,6 +85,10 @@ public abstract class Grid<S> extends ArrayList<S> {
             return true;
         }
         return false;
+    }
+    public void unPack(int x, int y){
+        S s = get(x, y);
+        ((Square)s).setValue(Square.EMPTY);
     }
     /**
      *
@@ -114,7 +147,7 @@ public abstract class Grid<S> extends ArrayList<S> {
      * Checks if a given space is occupied, setValue to 0
      */
     public boolean checkSpace(S s) {
-        return compareTo(s, 0); /* 0  means not used */
+        return compareTo(s, Square.EMPTY); /* 0  means not used */
     }
     /**
      * Concrete class implements many difficulty levels
@@ -133,37 +166,6 @@ public abstract class Grid<S> extends ArrayList<S> {
         regions = factory.getRegions();
     }
 
-    public S getHint(){
-        List<Boolean> validationBuffer = new ArrayList<>(9);{
-            for(int i = 0; i < length(); i++){
-                validationBuffer.add(false);
-            }
-        }
-        if(getHintsUsed() < getMaxHint()){
-            updateHintCount();
-            int index = 0;
-            for(S s : this){ //not this but extreact regions change sudoku set
-                validationBuffer.add(index, ((Square)s).contains(index++));
-                if(index == getBound()) return s;
-            }
-        }
-        return null;
-    }
-    public boolean isSolvable(){
-        return false;
-    }
-    public void solve(){
-
-    }
-    private void fill() throws Exception{
-        int k = 1, x, y, z;
-        while(k<= getMaxFilled()){
-            x = (int) (Math.random() * 8);
-            y = (int) (Math.random() * 8);
-            z = (int) (Math.random() * 8 + 1);
-            if(pack(x, y, z)) k++;
-        }
-    }
     private int getHintsUsed(){
         return getMaxHint() - getHintCount();
     }
@@ -178,7 +180,7 @@ public abstract class Grid<S> extends ArrayList<S> {
         for(int i = 0; i < len; i++) { sum+= i; }
         return sum;
     }
-    public int getBound(){
+    private int getBound(){
         return GRID_BOUND;
     }
     protected abstract int getMaxFilled();

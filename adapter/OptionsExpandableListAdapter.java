@@ -1,5 +1,4 @@
-package edu.utep.cs.cs4330.sudoku.adapters;
-
+package edu.utep.cs.cs4330.sudoku.adapter;
 /**
  * @author: Jesus Chavez
  * @macuser: aex on 3/26/18.
@@ -48,7 +47,7 @@ public class OptionsExpandableListAdapter extends BaseExpandableListAdapter{
     public Object getChild(int listPosition, int expandedListPosition) {
         return  this.expandableListDetail.get(
                 this.expandableListTitle.get(listPosition)
-                ).get(expandedListPosition);
+        ).get(expandedListPosition);
     }
     @Override
     public long getGroupId(int listPosition) {
