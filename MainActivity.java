@@ -1,27 +1,26 @@
 package edu.utep.cs.cs4330.sudoku;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.view.Menu;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.MenuItem;
 import android.widget.GridLayout;
 import android.widget.FrameLayout;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import edu.utep.cs.cs4330.sudoku.model.Board;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.HardGrid;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.NormalGrid;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.SimpleGrid;
-import edu.utep.cs.cs4330.sudoku.model.utility.grid.Square;
+import java.util.Objects;
+
 import edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid;
+import edu.utep.cs.cs4330.sudoku.model.utility.grid.Square;
+import edu.utep.cs.cs4330.sudoku.p2p.NetworkAdapter;
+import edu.utep.cs.cs4330.sudoku.p2p.Request;
 import edu.utep.cs.cs4330.sudoku.views.SquareView;
 
 /**
@@ -45,68 +44,94 @@ import edu.utep.cs.cs4330.sudoku.views.SquareView;
  * @author Yoonsik Cheon
  */
 public class MainActivity extends AppCompatActivity {
-
-    public static final String EASY_REGION_THREE = "0";
-    public static final String EASY_REGION_FOUR = "1";
-    public static final String MEDIUM_REGION_THREE = "2";
-    public static final String MEDIUM_REGION_FOUR = "3";
-    public static final String HARD_REGION_THREE = "4";
-    public static final String HARD_REGION_FOUR = "5";
-
+    /**
+     * Configuration settings
+     */
+    public enum Config{
+        EASY_REGION_NINE(new Tuple(9, 17)),
+        EASY_REGION_FOUR(new Tuple(4, 1)),
+        MEDIUM_REGION_NINE(new Tuple(9, 40)),
+        MEDIUM_REGION_FOUR(new Tuple(4, 2)),
+        HARD_REGION_NINE(new Tuple(9, 65)),
+        HARD_REGION_FOUR(new Tuple(4, 3)),
+        NETWORK_REGION_NINE(new Tuple(9, 81));
+        Tuple t;
+        Config(Tuple t) {
+            this.t = t;
+        }
+    }
+    /**
+     * Session, local, joined, or shared
+     */
+    public enum Session{
+        JOIN("join"),
+        SHARED("shared"),
+        LOCAL("local");
+        String s;
+        Session(String s) {
+            this.s = s;
+        }
+    }
+    /**
+     * number Ids
+     */
     private static final int[] numberIds = new int[] {
             R.id.n0, R.id.n1, R.id.n2, R.id.n3, R.id.n4,
             R.id.n5, R.id.n6, R.id.n7, R.id.n8, R.id.n9
     };
-   // private Dictionary<GridFactory<Integer, String>, Grid> grids;{
-       // grids = new ArrayList<>();
-       // grids.put(new HardGrid(REGION_FOUR));
-   // }
-    GridLayout gridLayout;
-    SquareView head, tail;
-    int h, w;
-    private List<View> squareView;
-    /**/
-    private Board<Square> board;
+    /**
+     * Workers, independent threads
+     */
+    private Thread localWorker, squareWorker, hostWorker, peerWorker;
+    /**
+     * Layout assigned programmatically
+     */
+    private GridLayout gridLayout;
+    /**
+     * Linked list of all squares
+     */
+    private SquareView head, tail;
+    /**
+     * height and width of board
+     */
+    private int height, width;
+    /**
+     * List of squares
+     */
+    private List<Square> squares;
     /** All the number buttons. */
     private List<View> numberButtons;
-    /* ids*/
-    private int selected = -1;
-    //private static final List<Integer> numberIds;
-    private Button newButton;
-    private int length,c = 0, r =0;
-    private String difficulty;
-    /** Width of number buttons automatically calculated from the screen size. */
-    private static int buttonWidth;
-    private Square current, next;
-    private boolean madeSelection = false;
-    public MainActivity() throws Exception {
+
+    /**
+     * Local, Join, or shared
+     * To specify the type of game, network or local
+     */
+    private Session session;
+
+    /** instance */
+    public MainActivity() {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         gridLayout = findViewById(R.id.grid_layout);
         gridLayout.setVisibility(View.VISIBLE);
         numberButtons = new ArrayList<>();
-        gridLayout.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            public void onGlobalLayout() {
-                h = gridLayout.getHeight();
-                w = gridLayout.getWidth();
-            }
+        gridLayout.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            height = gridLayout.getHeight();
+            width = gridLayout.getWidth();
         });
         for (int i = 0; i < numberIds.length; i++) {
             final int number = i; // 0 for delete button
             View button = findViewById(numberIds[i]);
             button.setOnClickListener(e -> numberClicked(number));
             numberButtons.add(button);
-            setButtonWidth(button);
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-        assert menu.hasVisibleItems();
         getMenuInflater().inflate(R.menu.main,menu);
         return true;
     }
@@ -115,33 +140,138 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch(item.getItemId()){
             case R.id.action_new: create(); break;
-            case R.id.action_p2p: createP2Pwifi(); break;
+            case R.id.action_share: share(); break;
+            case R.id.action_join: join(); break;
             case R.id.action_solve: solve(); break;
-            case R.id.action_hint: hint(); break;
         }
         return super.onOptionsItemSelected(item);
     }
-    private void createP2PblueToth(){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
+        Bundle bundle;
+        Config selected;
+        bundle = result.getExtras();
+        String address;
+        int port;
+        /* must assert not null but dalvik does not allow assertions*/
+        if (requestCode == 1 && resultCode == RESULT_OK && bundle != null) {
+            if((selected = (Config) bundle.get("setup"))!=null){
+                Log.d("starting workers", "true");
+                session = Session.LOCAL;
+                setSquares(selected);
+                buildUI(selected);
+                localWorker = new LocalWorker();
+                squareWorker = new SquareWorker();
+                localWorker.start();
+                squareWorker.start();
+            }
+        }
+        if (requestCode == 2 && resultCode == RESULT_OK && bundle != null) {
+            session = Session.JOIN;
+            address = bundle.getString("address");
+            port = Integer.parseInt(bundle.getString("port"));
+            Log.d("__joining", address +" "+port);
+            session = Session.JOIN;
+            peerWorker = new PeerWorker(address, port);
+            peerWorker.start();
+            ((PeerWorker)peerWorker).setReq(new Request(NetworkAdapter.MessageType.JOIN));
 
+        }
+        if (requestCode == 3 && resultCode == RESULT_OK && bundle != null) {
+            session = Session.SHARED;
+            hostWorker = new HostWorker();
+            hostWorker.start();
+        }
     }
-    private void createP2PwifiDirect(){
 
-    }
-    private void createP2Pwifi() {
-        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.JoinActivity");
-        startActivityForResult(intent, 2);
-    }
-    /** Callback to be invoked when a number button is tapped.
-     *
-     * @param n Number represented by the tapped button
-     *          or 0 for the delete button.
+
+    /**
+     * Starts a new game for a specified int array board, checks if a game has been initialized
+     * @param len length of one side of the board
+     * @param others the actual board
      */
-    public void numberClicked(int n) {
-        int number = n, x, y;
+    private void joinGame(int len, int[] others){
+        int dropout = Config.NETWORK_REGION_NINE.t.dropout();
+        int x, y, z;
+        int count = 1;
+        if(squares !=null){
+            ((Grid) squares).dropAll();
+        }else{
+            Log.d("building", "all");
+            setSquares(Config.NETWORK_REGION_NINE);
+            for(int i = 0; i < others.length-2;i+=4){
+                x = others[i];
+                y = others[i+1];
+                z = others[i+2];
+                ((Grid)squares).pack(x, y, z);
+                count++;
+            }
+            buildUI(Config.NETWORK_REGION_NINE);
+            localWorker = new LocalWorker();
+            squareWorker = new SquareWorker();
+            localWorker.start();
+            squareWorker.start();
+        }
+
+    }
+
+    /**
+     * Sets the List Squares. Supertype? of Grid.
+     * @param config configuration tuple
+     * @see edu.utep.cs.cs4330.sudoku.model.utility.grid.Grid
+     * @see edu.utep.cs.cs4330.sudoku.Tuple
+     */
+    private void setSquares(Config config){
+        squares = new Grid<>(config.t.len(), config.t.dropout());
+    }
+
+    /**
+     * Builds a ui to specified column and width
+     * @param config configuration tuple
+     * @see edu.utep.cs.cs4330.sudoku.Tuple
+     */
+    private void buildUI(Config config){
+        int index;
+        gridLayout.removeAllViews();
+        gridLayout.setColumnCount(config.t.len());
+        gridLayout.setRowCount(config.t.len());
+        head = new SquareView(this);
+        tail = new SquareView(this);
+        SquareView next = new SquareView(this);
+        head.setSquare(squares.get(0));
+        tail.setSquare(squares.get(((Grid) squares).length() - 1));
+        head.link(head, next, tail);
+        tail.link(head, next, tail);
+        int sigma = ((Grid) squares).length();
+        sigma = (int) Math.sqrt(sigma);
+        for(int i = 0; i < squares.size(); i++){
+            Square current = squares.get(i);
+            next.setSquare(current);
+            next.setSigma(sigma);
+            next.link(head, new SquareView(this), tail);
+            index = ((Grid ) squares).getLinearIndex(current.x, current.y);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout
+                    .LayoutParams.MATCH_PARENT);
+            params.rightMargin = 7;
+            params.topMargin = 7;
+            params.height = width/config.t.len();
+            params.width = width/config.t.len();
+            next.setLayoutParams(params);
+            gridLayout.addView(next, index);
+            next = next.next();
+        }
+        gridLayout.invalidate();
+    }
+    /**
+     * Called by number clicked listener
+     * @param number num clicked
+     */
+    private void numberClicked(int number) {
+        int  x, y;
+        Request req;
         Square select = null;
-        // here you get the current selected square view
-        for(Square s: board.grid){
-            if(s.isSelected()){
+        for(Square s: squares){
+            if(s.isUserSelected()){
                 select = s;
                 break;
             }
@@ -149,9 +279,20 @@ public class MainActivity extends AppCompatActivity {
         if(select != null){
             x = select.x;
             y =select.y;
-            board.put(x, y, n);
-            Log.d("selected ok", select.toString());
+            if(((Grid<Square>) squares).pack(x, y, number)){
+                switch (session){
+                    case JOIN:case SHARED: {
+                        req = new Request(NetworkAdapter.MessageType.FILL, x, y, number);
+                        ((PeerWorker) peerWorker).setReq(req);
+                        break;
+                    }
+                    case LOCAL:{
+                        break;
+                    }
+                }
+            }
         }
+
         SquareView current = head.next();
         while(current!= null){
             current.invalidate();
@@ -159,146 +300,298 @@ public class MainActivity extends AppCompatActivity {
         }
         gridLayout.invalidate();
     }
+    /**
+     * Creates a new game
+     */
     private void create(){
-        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.SetupActivity");
+        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.GameSetupActivity");
         startActivityForResult(intent, 1);
-        //startActivity(intent);
     }
-    protected void onActivityResult(int requestCode, int resultCode, Intent result) {
-        Bundle bundle;
-        String selected = "";
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            bundle = result.getExtras();
-            assert bundle != null;
-            selected = bundle.getString("setup");
-            initVars(selected);
-            start();
-        }
+    /**
+     * Join a game hosted by another client, starts activity to set up connection
+     */
+    private void join(){
+        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.PeerSetupActivity");
+        intent.putExtra("session", "join");
+        startActivityForResult(intent, 2);
+    }
+    /**
+     * Share a game hosted by another client, starts activity to set up connection
+     */
+    private void share() {
+        Intent intent = new Intent("edu.utep.cs.cs4330.sudoku.HostSetupActivity");
+        intent.putExtra("session", "share");
+        startActivityForResult(intent, 3);
+    }
+    /**
+     * Solves the game
+     */
+    private void solve(){
+        Log.d("solv", ((Grid)squares).solve() +" ");
+    }
+    public class LocalWorker extends Thread{
+        Square userSelect, networkSelect;
+        int i;
+        public void run(){
+            while(true){
+                synchronized (this){
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                            e.printStackTrace();
+                    }
+                }
+                Log.d("pass>?","");
+                if(userSelect!= null && ((Grid<Square>)squares).get(userSelect.x, userSelect.y).get() == 0){
+                    runOnUiThread(()->{
+                        SquareView v = head.next();
+                        Square s;
+                        List<Square> region = ((Grid<Square>)squares).getRegionShadowSet(userSelect);
+                        List<Square> col = ((Grid<Square>)squares).getColShadowSet(userSelect);
+                        List<Square> row = ((Grid<Square>)squares).getRowShadowSet(userSelect);
+                        List<Boolean> available = ((Grid<Square>)squares).getSelected(userSelect);
+                        while (v != null &&(s = v.getSquare())!=null) {
+                            if (region.contains(s) ||
+                                    row.contains(s) ||
+                                    col.contains(s)) {
+                                s.shadowSelect();
+                            } else {
+                                s.shadowDeSelect();
+                            }
+                            v = v.next();
+                        }
+                        for (View button : numberButtons) {
+                            i = numberButtons.indexOf(button);
+                            if (i > 0) {
+                                final int visibility = available.get(i) ? View.VISIBLE : View.INVISIBLE;
+                                button.setVisibility(visibility);
+                                button.invalidate();
 
-    }
-    private void initVars(String selector) {
-        int index = 0;
-        gridLayout.setVisibility(View.VISIBLE);
-        try {
-            if (selector.equals(EASY_REGION_THREE)) {
-                board = new Board<>(9, new SimpleGrid<>(9));
-                c = r= 9;
-            } else if (selector.equals(EASY_REGION_FOUR)) {
-                board = new Board<>(4, new SimpleGrid<>(4));
-                c = r= 4;
-            } else if (selector.equals(MEDIUM_REGION_THREE)) {
-                board = new Board<>(9, new SimpleGrid<>(9));
-                c = r= 9;
-            } else if (selector.equals(MEDIUM_REGION_FOUR)) {
-                board = new Board<>(4, new SimpleGrid<>(4));
-                c = r= 4;
-            } else if (selector.equals(HARD_REGION_THREE)) {
-                board = new Board<>(9, new HardGrid<>(9));
-                c = r= 9;
-            } else if (selector.equals(HARD_REGION_FOUR)) {
-                board = new Board<>(4, new HardGrid<>(4));
-                c = r= 4;
+                            }
+                        }
+                        head.invalidateALL();
+                    });
+                } else if(userSelect!= null && ((Grid<Square>)squares).get(userSelect.x, userSelect.y).get() > 0){
+                    runOnUiThread(()->{
+                        SquareView v = head.next();
+                        Square s;
+                        while (v!= null&&(s = v.getSquare())!=null){
+                            if(s.equals(userSelect)){
+                                Log.d("placing select", s.toString());
+                                s.placeSelect();
+                            }else{
+                                s.placeDeSelect();
+                            }
+                            s.userDeselect();
+                            s.shadowDeSelect();
+                            v.invalidate();
+                            v = v.next();
+                        }
+
+                        for (View button : numberButtons) {
+                            i = numberButtons.indexOf(button);
+                            if (i > 0) {
+                                button.setVisibility(View.VISIBLE);
+                                button.invalidate();
+                            }
+                        }
+                    });
+                } else if(networkSelect!= null && ((Grid<Square>)squares).get(networkSelect.x, networkSelect.y).get() > 0){
+                    runOnUiThread(()->{
+                        SquareView v = head.next();
+                        Square s;
+                        while (v!= null&&(s = v.getSquare())!=null){
+                            if(s.equals(networkSelect)){
+                                Log.d("placing net select", s.toString());
+                                s.networkSelect();
+                            }else{
+                                s.networkDeselect();
+                            }
+                            s.userDeselect();
+                            s.shadowDeSelect();
+                            v.invalidate();
+                            v = v.next();
+                        }
+
+                        for (View button : numberButtons) {
+                            i = numberButtons.indexOf(button);
+                            if (i > 0) {
+                                button.setVisibility(View.VISIBLE);
+                                button.invalidate();
+                            }
+                        }
+                    });
+                }
             }
-        }catch (Exception e){
-            e.printStackTrace();
+
         }
-        gridLayout.removeAllViews();
-        gridLayout.setColumnCount(c);
-        gridLayout.setRowCount(r);
-        head = new SquareView(this);
-        tail = new SquareView(this);
-        SquareView next = new SquareView(this);
-        head.setSquare(board.grid.get(0));
-        tail.setSquare(board.grid.get(((Grid) board.grid).length() - 1));
-        head.link(head, next, tail);
-        tail.link(head, next, tail);
-        int sigma = ((Grid) board.grid).length();
-        sigma = (int) Math.sqrt(sigma);
-        for(int i = 0; i < board.grid.size(); i++){
-            Square current = board.grid.get(i);
-            next.setSquare(current);
-            next.setSigma(sigma);
-            next.link(head, new SquareView(this), tail);
-            index = ((Grid )board.grid).getLinearIndex(current.x, current.y);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout
-                    .LayoutParams.MATCH_PARENT);
-            params.rightMargin = 7;
-            params.topMargin = 7;
-            params.height = w/c;
-            params.width = w/c;
-            next.setLayoutParams(params);
-            gridLayout.addView(next, index);
-            next.invalidate();
-            next = next.next();
+        public synchronized void setNetworkSelect(Square select){
+            networkSelect = select;
+            userSelect = null;
+            notify();
         }
-        gridLayout.invalidate();
-        try {
-            board.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+        public synchronized void setUserSelect(Square select){
+            userSelect = select;
+            networkSelect = null;
+            notify();
         }
     }
-    private void start(){
-        new Thread(){
-            public void run(){
-                while(board.getStatus().equals(Board.RUNNING_)){
-                    Square select = null;
-                    List<Boolean> available = null;
-                    int i =0;
-                    // here you get the current selected square view
-                    for(Square s: board.grid){
-                        if(s.isSelected()){
-                            select = s;
+    public class SquareWorker extends Thread{
+        public void run(){
+            while(true){
+                for (Square s: squares){
+                    if(s.isUserSelected()){
+                        ((LocalWorker)localWorker).setUserSelect(s);
+                    }
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    public class HostWorker extends Thread{
+        //TODO implement the share worker
+        //should start a server socket and listen for connections
+    }
+    public class PeerWorker extends Thread{
+        private NetworkAdapter adapter;
+        private Socket socket;
+        private Request req;
+        private String address;
+        private int port;
+        PeerWorker(Socket socket){
+            this.socket =socket;
+        }
+        PeerWorker(String address, int port){
+            Log.d("__creating", address+" "+port);
+            this.address = address;
+            this.port = port;
+        }
+        @Override
+        public void run() {
+            if(address !=null){
+                Log.d("__connecting", address+" "+port);
+                this.socket =new Socket();
+                try {
+                    socket.connect(new InetSocketAddress(address, port));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            adapter=new NetworkAdapter(socket);
+            adapter.setMessageListener(new NetworkAdapter.MessageListener() {
+                @Override
+                public void messageReceived(NetworkAdapter.MessageType type, int x, int y, int z, int[] others) {
+                    switch (type){
+                        case NEW:{
+                            adapter.writeNewAck(true);
+                            break;
+                        }
+                        case FILL:{
+                            if(((Grid<Square>)squares).pack(x, y, z)) {
+                                adapter.writeFillAck(x, y, z);
+                                runOnUiThread(()-> {
+                                    Square s = ((Grid<Square>) squares).get(x, y);
+                                    ((LocalWorker)localWorker).setNetworkSelect(s);
+                                });
+                            }
+                            break;
+                        }
+                        case JOIN:{
+                            adapter.writeJoinAck(((Grid)squares).length(), ((Grid)squares).toIntArray());
+                            break;
+                        }
+                        case CLOSE:case QUIT:case UNKNOWN:{
+                            break;
+                        }
+                        case NEW_ACK:{
+                            break;
+                        }
+                        case FILL_ACK: {
+                            break;
+                        }
+                        case JOIN_ACK:{
+                            runOnUiThread(()->{
+                                joinGame(y,others);
+                            });
                             break;
                         }
                     }
-                    if(select != null){
-                        available= ((Grid<Square>)board.grid).getAvailable(select);
-                        Log.d("avail, ", available.toString());
-                        for(View button: numberButtons){
-                            i = numberButtons.indexOf(button);
-                            if(i > 0){
-                                final int visibility = available.get(i)? View.VISIBLE:View.INVISIBLE;
-                                runOnUiThread(()->{
-                                    button.setVisibility(visibility);
-                                    button.invalidate();
-                                });
-                                Log.d("avail, ", visibility+"");
-                            }
-                        }
-                        List<List<Square>> shadowSet = ((Grid<Square>)board.grid).getShadowSet(select);
-                        Square finalSelect = select;
-                        runOnUiThread(()->{
-                            final Square s = finalSelect;
-                            head.unShadowAll(shadowSet.get(0), shadowSet.get(1), shadowSet.get(2), finalSelect);
-                        });
+                    req = null;
+                }
+            });
+            while(true){
+                if(req!= null){
+                    Log.d("__submitting", req.type +" ");
+                    new Thread(new P2PTask(adapter, req)).start();
+                    adapter.receiveMessagesAsync();
+                    req = null;
+                }else{
+                    synchronized (this) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        };
                     }
-                    try{
-                        sleep(10);
-                    }catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    adapter.receiveMessagesAsync();
                 }
             }
-        }.start();
-    }
-    private void solve(){
-        
-    }
-    private void hint(){
-        
+        }
+        public synchronized void setReq(Request req){
+            this.req = req;
+            notify();
+        }
     }
 
-    /** Set the width of the given button calculated from the screen size. */
-    private void setButtonWidth(View view) {
-        if (buttonWidth == 0) {
-            final int distance = 2;
-            int screen = getResources().getDisplayMetrics().widthPixels;
-            buttonWidth = (screen - ((9 + 1) * distance)) / 9; // 9 (1-9)  buttons in a row
+    public class P2PTask implements Runnable{
+        NetworkAdapter adapter;
+        Request req;
+        public P2PTask(NetworkAdapter adapter, Request req){
+            this.adapter = adapter;
+            this.req = req;
         }
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.width = buttonWidth;
-        view.setLayoutParams(params);
+        @Override
+        public void run() {
+            switch (req.type){
+                case NEW:{
+                    adapter.writeNew(req.board.length, req.board);
+                    break;
+                }
+                case FILL:{
+                    adapter.writeFill(req.x, req.y, req.z);
+                    break;
+                }
+                case JOIN:{
+                    adapter.writeJoin();
+                    break;
+                }
+                case CLOSE:case QUIT:case UNKNOWN:{
+                    adapter.writeQuit();
+                    break;
+                }
+            }
+        }
     }
-   
+}
+/** utility class */
+class Tuple{
+    /**
+     * len length
+     * drop dropout
+     */
+    private final int len, dropout;
+    Tuple(int len, int dropout) {
+        this.len = len;
+        this.dropout = dropout;
+    }
+    public int len(){
+        return len;
+    }
+    public int dropout(){
+        return dropout;
+    }
 }
